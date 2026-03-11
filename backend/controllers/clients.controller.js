@@ -1,10 +1,16 @@
 import sql from "../config/db.js";
 
+// Obtener todos los clientes de un gym
 export const getClients = async (req, res) => {
   try {
+    const { gym_id } = req.params;
 
     const result = await sql`
-      SELECT * FROM clients ORDER BY created_at DESC
+      SELECT cp.*, u.name, u.email 
+      FROM clients_profile cp
+      JOIN users u ON cp.user_id = u.id
+      WHERE cp.gym_id = ${gym_id}
+      ORDER BY cp.created_at DESC
     `;
 
     res.json(result);
@@ -14,28 +20,62 @@ export const getClients = async (req, res) => {
   }
 };
 
-export const createClient = async (req, res) => {
+// Obtener un cliente por id
+export const getClientById = async (req, res) => {
   try {
-
-    const {
-      gym_id,
-      first_name,
-      last_name,
-      phone,
-      address,
-      eps
-    } = req.body;
+    const { id_client } = req.params;
 
     const result = await sql`
-      INSERT INTO clients 
-      (gym_id, first_name, last_name, phone, address, eps)
-      VALUES (${gym_id}, ${first_name}, ${last_name}, ${phone}, ${address}, ${eps})
-      RETURNING *
+      SELECT cp.*, u.name, u.email 
+      FROM clients_profile cp
+      JOIN users u ON cp.user_id = u.id
+      WHERE cp.id = ${id_client}
     `;
 
-    res.status(201).json(result[0]);
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Cliente no encontrado" });
+    }
+
+    res.json(result[0]);
 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Actualizar perfil de cliente
+export const updateClient = async (req, res) => {
+  try {
+    const { id_client } = req.params;
+    const { phone, address, eps, emergency_contact } = req.body;
+
+    const result = await sql`
+      UPDATE clients_profile
+      SET phone = ${phone}, address = ${address}, 
+          eps = ${eps}, emergency_contact = ${emergency_contact}
+      WHERE id = ${id_client}
+      RETURNING *
+    `;
+
+    res.json(result[0]);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// borrar un cliente
+export const deleteClient = async(req, res)=>{
+  try {
+    const { id_user } = req.params;
+
+    await sql`
+      DELETE FROM users
+      WHERE id = ${id_user}
+    `;
+
+    res.json({ message: "User deleted", User: id_user })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}

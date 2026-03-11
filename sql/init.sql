@@ -17,16 +17,15 @@ CREATE TABLE users (
   name TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
   password TEXT NOT NULL,
-  role TEXT CHECK (role IN ('admin','trainer')) DEFAULT 'trainer',
+  role TEXT CHECK (role IN ('admin','trainer', 'client')) DEFAULT 'client',
   created_at TIMESTAMP DEFAULT NOW()
 );
 
 
-CREATE TABLE clients (
+CREATE TABLE clients_profile (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   gym_id UUID REFERENCES gyms(id) ON DELETE CASCADE,
-  first_name TEXT NOT NULL,
-  last_name TEXT NOT NULL,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   phone TEXT,
   address TEXT,
   eps TEXT,
@@ -47,7 +46,7 @@ CREATE TABLE memberships (
 
 CREATE TABLE client_memberships (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
+  client_id UUID REFERENCES clients_profile(id) ON DELETE CASCADE,
   membership_id UUID REFERENCES memberships(id),
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
@@ -65,7 +64,7 @@ CREATE TABLE lockers (
 
 CREATE TABLE client_lockers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
+  client_id UUID REFERENCES clients_profile(id) ON DELETE CASCADE,
   locker_id UUID REFERENCES lockers(id),
   start_date DATE,
   end_date DATE
@@ -102,7 +101,7 @@ CREATE TABLE routine_exercises (
 
 CREATE TABLE client_routines (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
+  client_id UUID REFERENCES clients_profile(id) ON DELETE CASCADE,
   routine_id UUID REFERENCES routines(id),
   assigned_at TIMESTAMP DEFAULT NOW()
 );
@@ -110,7 +109,7 @@ CREATE TABLE client_routines (
 
 CREATE TABLE exercise_progress (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id UUID REFERENCES clients(id),
+  client_id UUID REFERENCES clients_profile(id),
   exercise_id UUID REFERENCES exercises(id),
   weight NUMERIC,
   reps INT,
@@ -130,6 +129,7 @@ CREATE TABLE posts (
 
 CREATE TABLE attendance (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id UUID REFERENCES clients(id),
+  gym_id UUID REFERENCES gyms(id),
+  client_id UUID REFERENCES clients_profile(id),
   check_in TIMESTAMP DEFAULT NOW()
 );

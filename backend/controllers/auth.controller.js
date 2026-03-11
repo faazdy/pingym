@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 export const register = async (req, res) => {
   try {
 
-    const { gym_id, name, email, password, role } = req.body;
+    const { gym_id, name, email, password, role, phone, address, eps, emergency_contact } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
 
     //email validate
@@ -17,14 +17,23 @@ export const register = async (req, res) => {
 
     const result = await sql`
       INSERT INTO users (gym_id, name, email, password, role)
-      VALUES (${gym_id}, ${name}, ${email}, ${hashedPassword}, ${role || "trainer"})
+      VALUES (${gym_id}, ${name}, ${email}, ${hashedPassword}, ${role || "client"})
       RETURNING id, name, email, role
     `;
+    //client register
+    const user = result[0]
+    if (user.role === "client") {
+      const clientRegister = await sql`
+        INSERT INTO clients_profile (gym_id, user_id, phone, address, eps, emergency_contact)
+        VALUES (${gym_id}, ${user.id}, ${phone}, ${address}, ${eps}, ${emergency_contact})
+        RETURNING id, user_id, phone, address, eps, emergency_contact
+      `;
+      user.profile = clientRegister[0] //para mostrar el perfil cliente 
+    }
 
-    res.status(201).json(result[0]);
-
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(201).json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -96,3 +105,88 @@ export const registerGym = async(req, res)=>{
     res.status(500).json({ error: err.message })
   }
 }
+
+
+// update user
+export const updateUser = async (req, res) => {
+  try {
+    const { id_user } = req.params;
+    const { name, email } = req.body;
+
+    const result = await sql`
+      UPDATE users
+      SET name = ${name}, email = ${email}
+      WHERE id = ${id_user}
+      RETURNING id, name, email, role
+    `;
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.json(result[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// delete user (en cascada elimina client_profile)
+export const deleteUser = async (req, res) => {
+  try {
+    const { id_user } = req.params;
+
+    const result = await sql`
+      DELETE FROM users WHERE id = ${id_user} RETURNING id
+    `;
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.json({ message: "Usuario eliminado correctamente" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// update gym
+export const updateGym = async (req, res) => {
+  try {
+    const { id_gym } = req.params;
+    const { name_gym, address, phone } = req.body;
+
+    const result = await sql`
+      UPDATE gyms
+      SET name = ${name_gym}, address = ${address}, phone = ${phone}
+      WHERE id = ${id_gym}
+      RETURNING id, name, address, phone
+    `;
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Gym no encontrado" });
+    }
+
+    res.json(result[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// delete gym (en cascada elimina todo lo relacionado)
+export const deleteGym = async (req, res) => {
+  try {
+    const { id_gym } = req.params;
+
+    const result = await sql`
+      DELETE FROM gyms WHERE id = ${id_gym} RETURNING id
+    `;
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Gym no encontrado" });
+    }
+
+    res.json({ message: "Gym eliminado correctamente" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
