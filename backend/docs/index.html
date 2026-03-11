@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GymSaaS — Backend API Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --surface2: #1a1a1a;
+      --border: #222222;
+      --border2: #2a2a2a;
+      --text: #ededed;
+      --muted: #737373;
+      --accent: #7c3aed;
+      --accent2: #a855f7;
+      --green: #22c55e;
+      --blue: #3b82f6;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --orange: #f97316;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(12px);
+      padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .logo-badge {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px; padding: 4px 10px;
+      font-weight: 700; font-size: 13px; letter-spacing: .5px;
+    }
+    .nav-title { font-size: 14px; color: var(--muted); font-weight: 500; }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 13px;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* LAYOUT */
+    .wrapper {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      max-width: 1200px; margin: 0 auto;
+      min-height: calc(100vh - 60px);
+    }
+    aside {
+      position: sticky; top: 60px;
+      height: calc(100vh - 60px); overflow-y: auto;
+      border-right: 1px solid var(--border);
+      padding: 32px 20px;
+    }
+    aside h4 {
+      font-size: 11px; letter-spacing: 1px; color: var(--muted);
+      text-transform: uppercase; margin-bottom: 12px; margin-top: 24px;
+      font-weight: 600;
+    }
+    aside h4:first-child { margin-top: 0; }
+    aside a {
+      display: block; padding: 6px 12px; border-radius: 8px;
+      color: var(--muted); text-decoration: none; font-size: 13px;
+      transition: all .15s; margin-bottom: 2px;
+    }
+    aside a:hover { background: var(--surface2); color: var(--text); }
+
+    main { padding: 48px 56px; max-width: 860px; }
+
+    /* SECTIONS */
+    section { margin-bottom: 72px; }
+    h1 { font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; line-height: 1.2; }
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 16px; letter-spacing: -.4px; }
+    h3 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; }
+    p { color: #aaa; font-size: 14px; margin-bottom: 12px; }
+
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(124,58,237,.15); border: 1px solid rgba(168,85,247,.3);
+      color: var(--accent2); border-radius: 100px;
+      padding: 4px 14px; font-size: 12px; font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .hero-tag::before { content: '●'; font-size: 8px; color: var(--green); }
+    .hero-desc { font-size: 16px; color: #999; max-width: 600px; margin-bottom: 32px; }
+
+    /* BADGES */
+    .badge {
+      display: inline-block; border-radius: 6px;
+      padding: 2px 8px; font-size: 11px; font-weight: 600;
+      font-family: 'JetBrains Mono', monospace; letter-spacing: .3px;
+    }
+    .badge.get    { background: rgba(59,130,246,.15); color: var(--blue); border: 1px solid rgba(59,130,246,.25); }
+    .badge.post   { background: rgba(34,197,94,.15);  color: var(--green);  border: 1px solid rgba(34,197,94,.25); }
+    .badge.put    { background: rgba(234,179,8,.15);  color: var(--yellow); border: 1px solid rgba(234,179,8,.25); }
+    .badge.delete { background: rgba(239,68,68,.15);  color: var(--red);    border: 1px solid rgba(239,68,68,.25); }
+    .badge.lock   { background: rgba(249,115,22,.15); color: var(--orange); border: 1px solid rgba(249,115,22,.25); }
+    .badge.open   { background: rgba(34,197,94,.15);  color: var(--green);  border: 1px solid rgba(34,197,94,.25); }
+
+    /* CODE BLOCKS */
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 20px 24px; overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; line-height: 1.7; margin: 12px 0 20px;
+    }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    p code, li code {
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 4px; padding: 1px 6px; font-size: 12px;
+    }
+    .token-c { color: #6b7280; }
+    .token-k { color: #a855f7; }
+    .token-s { color: #22c55e; }
+    .token-n { color: #60a5fa; }
+    .token-v { color: #fb923c; }
+    .token-b { color: #e879f9; }
+
+    /* CARDS */
+    .card {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 20px 24px; margin-bottom: 16px;
+    }
+    .card-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    }
+    .endpoint-path {
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text);
+    }
+    .card p { margin-bottom: 6px; }
+
+    /* TABLES */
+    table {
+      width: 100%; border-collapse: collapse;
+      font-size: 13px; margin: 12px 0 20px;
+    }
+    th {
+      text-align: left; padding: 8px 14px;
+      color: var(--muted); font-weight: 500; font-size: 11px;
+      text-transform: uppercase; letter-spacing: .5px;
+      border-bottom: 1px solid var(--border2);
+    }
+    td {
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      color: #bbb;
+    }
+    td code { background: var(--surface2); border: 1px solid var(--border2); border-radius: 4px; padding: 1px 6px; }
+    tr:last-child td { border-bottom: none; }
+
+    /* STEPS */
+    .steps { counter-reset: step; }
+    .step {
+      display: flex; gap: 20px; margin-bottom: 28px;
+    }
+    .step-num {
+      counter-increment: step;
+      content: counter(step);
+      flex-shrink: 0;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+    }
+    .step-num::before { content: counter(step); }
+    .step-body { flex: 1; }
+    .step-body h3 { margin-bottom: 6px; font-size: 15px; }
+
+    /* ALERT */
+    .alert {
+      border-radius: var(--radius); padding: 14px 18px;
+      font-size: 13px; margin: 16px 0; display: flex; gap: 10px;
+      align-items: flex-start;
+    }
+    .alert.info  { background: rgba(59,130,246,.1); border: 1px solid rgba(59,130,246,.2); color: #93c5fd; }
+    .alert.warn  { background: rgba(234,179,8,.1);  border: 1px solid rgba(234,179,8,.2);  color: #fde68a; }
+    .alert.tip   { background: rgba(34,197,94,.1);  border: 1px solid rgba(34,197,94,.2);  color: #86efac; }
+    .alert-icon  { font-size: 16px; line-height: 1; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+    ul li { color: #aaa; font-size: 14px; margin-bottom: 6px; margin-left: 20px; }
+
+    .stack-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0;
+    }
+    .stack-item {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 16px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .stack-item span:first-child { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+    .stack-item span:last-child { font-size: 14px; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <span class="logo-badge">GymSaaS</span>
+    <span class="nav-title">Backend API Docs</span>
+  </div>
+  <div class="nav-links">
+    <a href="#inicio">Inicio</a>
+    <a href="#setup">Instalación</a>
+    <a href="#auth">Auth</a>
+    <a href="#clients">Clients</a>
+    <a href="#frontend">Frontend</a>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <aside>
+    <h4>Introducción</h4>
+    <a href="#inicio">Descripción general</a>
+    <a href="#stack">Stack tecnológico</a>
+    <a href="#estructura">Estructura</a>
+
+    <h4>Instalación</h4>
+    <a href="#setup">Configurar en nueva máquina</a>
+    <a href="#env">Variables de entorno</a>
+    <a href="#db">Base de datos</a>
+    <a href="#run">Ejecutar el servidor</a>
+
+    <h4>API Reference</h4>
+    <a href="#auth">Auth — /api/auth</a>
+    <a href="#gymapi">Gym — /api/auth/gym</a>
+    <a href="#clients">Clients — /api/clients</a>
+
+    <h4>Guía Frontend</h4>
+    <a href="#frontend">Uso desde el frontend</a>
+    <a href="#ejemplos">Ejemplos completos</a>
+  </aside>
+
+  <main>
+
+    <!-- HERO -->
+    <section id="inicio">
+      <div class="hero-tag">v1.0.0 · Activo</div>
+      <h1>GymSaaS<br />Backend API</h1>
+      <p class="hero-desc">
+        API REST para la gestión de gimnasios como servicio. Maneja autenticación de usuarios, registro de gyms, perfiles de clientes y autorización mediante JWT.
+      </p>
+      <div class="alert info">
+        <span class="alert-icon">ℹ️</span>
+        <span>Base URL de desarrollo: <code>http://localhost:3000</code></span>
+      </div>
+
+      <h2 id="stack">Stack tecnológico</h2>
+      <div class="stack-grid">
+        <div class="stack-item"><span>Runtime</span><span>Node.js + ESM</span></div>
+        <div class="stack-item"><span>Framework</span><span>Express 5</span></div>
+        <div class="stack-item"><span>Base de datos</span><span>PostgreSQL (Supabase)</span></div>
+        <div class="stack-item"><span>ORM / Query</span><span>postgres.js</span></div>
+        <div class="stack-item"><span>Auth</span><span>JWT + bcrypt</span></div>
+        <div class="stack-item"><span>Dev tool</span><span>nodemon</span></div>
+      </div>
+
+      <h2 id="estructura">Estructura del proyecto</h2>
+      <pre>backend/
+├── app.js                 <span class="token-c"># Configuración de Express y rutas</span>
+├── package.json
+├── .env
+├── config/
+│   └── db.js             <span class="token-c"># Conexión a PostgreSQL</span>
+├── src/
+│   └── server.js         <span class="token-c"># Entry point — arranca el servidor</span>
+├── routes/
+│   ├── auth.routes.js    <span class="token-c"># /api/auth</span>
+│   └── clients.routes.js <span class="token-c"># /api/clients</span>
+├── controllers/
+│   ├── auth.controller.js
+│   └── clients.controller.js
+└── middleware/
+    └── auth.middleware.js <span class="token-c"># Verificación de JWT</span></pre>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- SETUP -->
+    <section id="setup">
+      <h2>Configurar en una nueva máquina</h2>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-body">
+            <h3>Clonar el repositorio</h3>
+            <pre>git clone &lt;repo-url&gt;
+cd gymsaas/backend</pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-body">
+            <h3>Instalar dependencias</h3>
+            <pre>npm install</pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-body">
+            <h3 id="env">Crear el archivo <code>.env</code></h3>
+            <p>Crea un archivo <code>.env</code> en la raíz de <code>/backend</code> con estas variables:</p>
+            <pre><span class="token-c"># Conexión a PostgreSQL (Supabase Pooler recomendado)</span>
+<span class="token-n">DATABASE_URL</span>=<span class="token-s">postgresql://usuario:password@host:puerto/postgres</span>
+
+<span class="token-c"># Puerto del servidor</span>
+<span class="token-n">PORT</span>=<span class="token-v">3000</span>
+
+<span class="token-c"># Secreto para firmar JWT (usa un UUID o string seguro)</span>
+<span class="token-n">JWT_SECRET</span>=<span class="token-s">tu-secreto-superseguro</span></pre>
+            <div class="alert warn">
+              <span class="alert-icon">⚠️</span>
+              <span>Nunca compartas tu <code>.env</code> real ni lo subas a Git. Agrégalo a <code>.gitignore</code>.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-body">
+            <h3 id="db">Crear las tablas en PostgreSQL</h3>
+            <p>Ejecuta este SQL en tu base de datos (Supabase SQL Editor o psql):</p>
+            <pre><span class="token-k">CREATE TABLE</span> gyms (
+  id         <span class="token-b">UUID</span> PRIMARY KEY DEFAULT gen_random_uuid(),
+  name       <span class="token-b">TEXT</span> UNIQUE NOT NULL,
+  address    <span class="token-b">TEXT</span>,
+  phone      <span class="token-b">TEXT</span>,
+  created_at <span class="token-b">TIMESTAMPTZ</span> DEFAULT NOW()
+);
+
+<span class="token-k">CREATE TABLE</span> users (
+  id         <span class="token-b">UUID</span> PRIMARY KEY DEFAULT gen_random_uuid(),
+  gym_id     <span class="token-b">UUID</span> REFERENCES gyms(id) ON DELETE CASCADE,
+  name       <span class="token-b">TEXT</span> NOT NULL,
+  email      <span class="token-b">TEXT</span> UNIQUE NOT NULL,
+  password   <span class="token-b">TEXT</span> NOT NULL,
+  role       <span class="token-b">TEXT</span> DEFAULT <span class="token-s">'client'</span>,
+  created_at <span class="token-b">TIMESTAMPTZ</span> DEFAULT NOW()
+);
+
+<span class="token-k">CREATE TABLE</span> clients_profile (
+  id                <span class="token-b">UUID</span> PRIMARY KEY DEFAULT gen_random_uuid(),
+  gym_id            <span class="token-b">UUID</span> REFERENCES gyms(id) ON DELETE CASCADE,
+  user_id           <span class="token-b">UUID</span> REFERENCES users(id) ON DELETE CASCADE,
+  phone             <span class="token-b">TEXT</span>,
+  address           <span class="token-b">TEXT</span>,
+  eps               <span class="token-b">TEXT</span>,
+  emergency_contact <span class="token-b">TEXT</span>,
+  created_at        <span class="token-b">TIMESTAMPTZ</span> DEFAULT NOW()
+);</pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-body">
+            <h3 id="run">Ejecutar el servidor</h3>
+            <pre><span class="token-c"># Modo desarrollo (hot-reload con nodemon)</span>
+npm run dev
+
+<span class="token-c"># Salida esperada:</span>
+<span class="token-s">Servidor corriendo en puerto 3000</span>
+<span class="token-s">DB conectada: [ { now: 2024-... } ]</span></pre>
+            <div class="alert tip">
+              <span class="alert-icon">✅</span>
+              <span>Si ves ambos mensajes, el servidor está listo y la DB conectada correctamente.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- AUTH API -->
+    <section id="auth">
+      <h2>Auth — <code>/api/auth</code></h2>
+      <p>Endpoints para autenticación de usuarios y gestión de cuentas.</p>
+
+      <!-- POST /register -->
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge open">Público</span>
+          <span class="endpoint-path">/api/auth/register</span>
+        </div>
+        <p>Registra un nuevo usuario. Si el rol es <code>client</code>, también crea su perfil en <code>clients_profile</code>.</p>
+        <h3>Body (JSON)</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+          <tr><td><code>name</code></td><td>string</td><td>✅</td><td>Nombre del usuario</td></tr>
+          <tr><td><code>email</code></td><td>string</td><td>✅</td><td>Email único</td></tr>
+          <tr><td><code>password</code></td><td>string</td><td>✅</td><td>Se hashea con bcrypt</td></tr>
+          <tr><td><code>gym_id</code></td><td>UUID</td><td>✅</td><td>ID del gym al que pertenece</td></tr>
+          <tr><td><code>role</code></td><td>string</td><td>—</td><td><code>client</code> (default) o <code>admin</code></td></tr>
+          <tr><td><code>phone</code></td><td>string</td><td>—</td><td>Solo para role=client</td></tr>
+          <tr><td><code>address</code></td><td>string</td><td>—</td><td>Solo para role=client</td></tr>
+          <tr><td><code>eps</code></td><td>string</td><td>—</td><td>Solo para role=client</td></tr>
+          <tr><td><code>emergency_contact</code></td><td>string</td><td>—</td><td>Solo para role=client</td></tr>
+        </table>
+        <h3>Ejemplo request</h3>
+        <pre>{
+  <span class="token-n">"gym_id"</span>: <span class="token-s">"3c7a1b2e-..."</span>,
+  <span class="token-n">"name"</span>: <span class="token-s">"Juan Pérez"</span>,
+  <span class="token-n">"email"</span>: <span class="token-s">"juan@gym.com"</span>,
+  <span class="token-n">"password"</span>: <span class="token-s">"mipass123"</span>,
+  <span class="token-n">"role"</span>: <span class="token-s">"client"</span>,
+  <span class="token-n">"phone"</span>: <span class="token-s">"300 123 4567"</span>,
+  <span class="token-n">"eps"</span>: <span class="token-s">"Sura"</span>,
+  <span class="token-n">"emergency_contact"</span>: <span class="token-s">"María 301 9876"</span>
+}</pre>
+        <h3>Respuesta exitosa — 201</h3>
+        <pre>{
+  <span class="token-n">"id"</span>: <span class="token-s">"uuid..."</span>,
+  <span class="token-n">"name"</span>: <span class="token-s">"Juan Pérez"</span>,
+  <span class="token-n">"email"</span>: <span class="token-s">"juan@gym.com"</span>,
+  <span class="token-n">"role"</span>: <span class="token-s">"client"</span>,
+  <span class="token-n">"profile"</span>: {
+    <span class="token-n">"id"</span>: <span class="token-s">"uuid..."</span>,
+    <span class="token-n">"user_id"</span>: <span class="token-s">"uuid..."</span>,
+    <span class="token-n">"phone"</span>: <span class="token-s">"300 123 4567"</span>,
+    <span class="token-n">"eps"</span>: <span class="token-s">"Sura"</span>
+  }
+}</pre>
+      </div>
+
+      <!-- POST /login -->
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge open">Público</span>
+          <span class="endpoint-path">/api/auth/login</span>
+        </div>
+        <p>Autentica un usuario y retorna un JWT válido por 7 días.</p>
+        <h3>Body (JSON)</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+          <tr><td><code>email</code></td><td>string</td><td>Email registrado</td></tr>
+          <tr><td><code>password</code></td><td>string</td><td>Contraseña en texto plano</td></tr>
+        </table>
+        <h3>Respuesta exitosa — 200</h3>
+        <pre>{
+  <span class="token-n">"token"</span>: <span class="token-s">"eyJhbGciOiJIUzI1NiIs..."</span>,
+  <span class="token-n">"user"</span>: {
+    <span class="token-n">"id"</span>: <span class="token-s">"uuid..."</span>,
+    <span class="token-n">"name"</span>: <span class="token-s">"Juan Pérez"</span>,
+    <span class="token-n">"email"</span>: <span class="token-s">"juan@gym.com"</span>,
+    <span class="token-n">"role"</span>: <span class="token-s">"client"</span>
+  }
+}</pre>
+      </div>
+
+      <!-- PUT /user/:id -->
+      <div class="card">
+        <div class="card-header">
+          <span class="badge put">PUT</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/auth/user/:id_user</span>
+        </div>
+        <p>Actualiza nombre y email de un usuario existente.</p>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+          <tr><td><code>name</code></td><td>string</td><td>Nuevo nombre</td></tr>
+          <tr><td><code>email</code></td><td>string</td><td>Nuevo email</td></tr>
+        </table>
+      </div>
+
+      <!-- DELETE /user/:id -->
+      <div class="card">
+        <div class="card-header">
+          <span class="badge delete">DELETE</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/auth/user/:id_user</span>
+        </div>
+        <p>Elimina un usuario. El perfil en <code>clients_profile</code> se elimina en cascada.</p>
+        <h3>Respuesta — 200</h3>
+        <pre>{ <span class="token-n">"message"</span>: <span class="token-s">"Usuario eliminado correctamente"</span> }</pre>
+      </div>
+    </section>
+
+    <!-- GYM API -->
+    <section id="gymapi">
+      <h2>Gym — <code>/api/auth/gym</code></h2>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/auth/gym/register</span>
+        </div>
+        <p>Registra un nuevo gimnasio.</p>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr>
+          <tr><td><code>name_gym</code></td><td>string</td><td>Nombre único del gym</td></tr>
+          <tr><td><code>address</code></td><td>string</td><td>Dirección</td></tr>
+          <tr><td><code>phone</code></td><td>string</td><td>Teléfono</td></tr>
+        </table>
+        <h3>Respuesta — 201</h3>
+        <pre>{ <span class="token-n">"id"</span>: <span class="token-s">"uuid..."</span>, <span class="token-n">"name"</span>: <span class="token-s">"Iron Gym"</span>, <span class="token-n">"address"</span>: <span class="token-s">"Calle 1"</span>, <span class="token-n">"phone"</span>: <span class="token-s">"600..."</span> }</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="badge put">PUT</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/auth/gym/:id_gym</span>
+        </div>
+        <p>Actualiza datos de un gym. Mismos campos que el registro.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="badge delete">DELETE</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/auth/gym/:id_gym</span>
+        </div>
+        <p>Elimina un gym y en cascada todos sus usuarios y perfiles.</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- CLIENTS API -->
+    <section id="clients">
+      <h2>Clients — <code>/api/clients</code></h2>
+      <p>Todos los endpoints de clientes requieren JWT.</p>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/clients/:gym_id</span>
+        </div>
+        <p>Devuelve todos los clientes de un gym, con su perfil y datos de usuario.</p>
+        <h3>Respuesta — 200</h3>
+        <pre>[
+  {
+    <span class="token-n">"id"</span>: <span class="token-s">"uuid..."</span>,
+    <span class="token-n">"user_id"</span>: <span class="token-s">"uuid..."</span>,
+    <span class="token-n">"phone"</span>: <span class="token-s">"300..."</span>,
+    <span class="token-n">"address"</span>: <span class="token-s">"Calle 10"</span>,
+    <span class="token-n">"eps"</span>: <span class="token-s">"Sura"</span>,
+    <span class="token-n">"emergency_contact"</span>: <span class="token-s">"..."</span>,
+    <span class="token-n">"name"</span>: <span class="token-s">"Juan Pérez"</span>,
+    <span class="token-n">"email"</span>: <span class="token-s">"juan@gym.com"</span>
+  }
+]</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/clients/client/:id_client</span>
+        </div>
+        <p>Devuelve un cliente por su ID de perfil (no el user_id).</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="badge put">PUT</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/clients/client/:id_client</span>
+        </div>
+        <p>Actualiza el perfil de un cliente.</p>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th></tr>
+          <tr><td><code>phone</code></td><td>string</td></tr>
+          <tr><td><code>address</code></td><td>string</td></tr>
+          <tr><td><code>eps</code></td><td>string</td></tr>
+          <tr><td><code>emergency_contact</code></td><td>string</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="badge delete">DELETE</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/clients/client/:id_user</span>
+        </div>
+        <p>Elimina el usuario (y su perfil en cascada). El parámetro es el <code>user_id</code>, no el <code>id_client</code>.</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- MIDDLEWARE -->
+    <section>
+      <h2>Autenticación con JWT</h2>
+      <p>Los endpoints protegidos requieren el token en el header <code>Authorization</code>:</p>
+      <pre>Authorization: Bearer eyJhbGciOiJIUzI1NiIs...</pre>
+      <p>El middleware decodifica el token e inyecta <code>req.user</code> con <code>{ id, role }</code> para uso en los controladores.</p>
+      <table>
+        <tr><th>Código</th><th>Motivo</th></tr>
+        <tr><td><code>401</code></td><td>No se envió el token</td></tr>
+        <tr><td><code>403</code></td><td>Token inválido o expirado</td></tr>
+      </table>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- FRONTEND GUIDE -->
+    <section id="frontend">
+      <h2>Uso desde el frontend</h2>
+      <p>Guía práctica para consumir la API desde cualquier frontend (Vue, React, etc.).</p>
+
+      <h3>1. Login y guardar el token</h3>
+      <pre><span class="token-c">// authService.js</span>
+<span class="token-k">const</span> <span class="token-n">API</span> = <span class="token-s">'http://localhost:3000/api'</span>
+
+<span class="token-k">export async function</span> <span class="token-b">login</span>(email, password) {
+  <span class="token-k">const</span> res = <span class="token-k">await</span> fetch(<span class="token-s">`${API}/auth/login`</span>, {
+    method: <span class="token-s">'POST'</span>,
+    headers: { <span class="token-n">'Content-Type'</span>: <span class="token-s">'application/json'</span> },
+    body: JSON.stringify({ email, password })
+  })
+
+  <span class="token-k">if</span> (!res.ok) <span class="token-k">throw new</span> Error(<span class="token-s">'Credenciales inválidas'</span>)
+
+  <span class="token-k">const</span> data = <span class="token-k">await</span> res.json()
+  localStorage.setItem(<span class="token-s">'token'</span>, data.token)
+  localStorage.setItem(<span class="token-s">'user'</span>, JSON.stringify(data.user))
+  <span class="token-k">return</span> data
+}</pre>
+
+      <h3>2. Helper para peticiones autenticadas</h3>
+      <pre><span class="token-c">// api.js</span>
+<span class="token-k">const</span> <span class="token-n">API</span> = <span class="token-s">'http://localhost:3000/api'</span>
+
+<span class="token-k">function</span> <span class="token-b">authHeaders</span>() {
+  <span class="token-k">const</span> token = localStorage.getItem(<span class="token-s">'token'</span>)
+  <span class="token-k">return</span> {
+    <span class="token-n">'Content-Type'</span>: <span class="token-s">'application/json'</span>,
+    <span class="token-n">'Authorization'</span>: <span class="token-s">`Bearer ${token}`</span>
+  }
+}
+
+<span class="token-k">export async function</span> <span class="token-b">apiFetch</span>(endpoint, options = {}) {
+  <span class="token-k">const</span> res = <span class="token-k">await</span> fetch(<span class="token-s">`${API}${endpoint}`</span>, {
+    ...options,
+    headers: { ...authHeaders(), ...options.headers }
+  })
+  <span class="token-k">if</span> (!res.ok) {
+    <span class="token-k">const</span> err = <span class="token-k">await</span> res.json()
+    <span class="token-k">throw new</span> Error(err.message || <span class="token-s">'Error en la petición'</span>)
+  }
+  <span class="token-k">return</span> res.json()
+}</pre>
+
+      <h3 id="ejemplos">3. Ejemplos completos</h3>
+
+      <h3>Registrar un gym</h3>
+      <pre><span class="token-k">import</span> { apiFetch } <span class="token-k">from</span> <span class="token-s">'./api.js'</span>
+
+<span class="token-k">const</span> gym = <span class="token-k">await</span> <span class="token-b">apiFetch</span>(<span class="token-s">'/auth/gym/register'</span>, {
+  method: <span class="token-s">'POST'</span>,
+  body: JSON.stringify({
+    name_gym: <span class="token-s">'Iron Gym Bogotá'</span>,
+    address: <span class="token-s">'Calle 72 #10-30'</span>,
+    phone: <span class="token-s">'601 456 7890'</span>
+  })
+})
+console.log(<span class="token-s">'Gym creado:'</span>, gym.id)</pre>
+
+      <h3>Registrar un cliente</h3>
+      <pre><span class="token-k">const</span> nuevoCliente = <span class="token-k">await</span> <span class="token-b">apiFetch</span>(<span class="token-s">'/auth/register'</span>, {
+  method: <span class="token-s">'POST'</span>,
+  body: JSON.stringify({
+    gym_id: <span class="token-s">'3c7a1b2e-...'</span>,
+    name: <span class="token-s">'Carlos López'</span>,
+    email: <span class="token-s">'carlos@email.com'</span>,
+    password: <span class="token-s">'pass1234'</span>,
+    role: <span class="token-s">'client'</span>,
+    phone: <span class="token-s">'310 888 2233'</span>,
+    eps: <span class="token-s">'Nueva EPS'</span>,
+    emergency_contact: <span class="token-s">'Madre: 312 000 1111'</span>
+  })
+})</pre>
+
+      <h3>Obtener lista de clientes</h3>
+      <pre><span class="token-k">const</span> gymId = <span class="token-s">'3c7a1b2e-...'</span>
+<span class="token-k">const</span> clientes = <span class="token-k">await</span> <span class="token-b">apiFetch</span>(<span class="token-s">`/clients/${gymId}`</span>)
+console.log(<span class="token-s">`${clientes.length} clientes encontrados`</span>)</pre>
+
+      <h3>Actualizar perfil de cliente (Vue 3 + Composition API)</h3>
+      <pre><span class="token-c">// UpdateClient.vue — &lt;script setup&gt;</span>
+<span class="token-k">import</span> { ref } <span class="token-k">from</span> <span class="token-s">'vue'</span>
+<span class="token-k">import</span> { apiFetch } <span class="token-k">from</span> <span class="token-s">'./api.js'</span>
+
+<span class="token-k">const</span> clientId = <span class="token-s">'...'</span>
+<span class="token-k">const</span> form = ref({ phone: <span class="token-s">''</span>, address: <span class="token-s">''</span>, eps: <span class="token-s">''</span>, emergency_contact: <span class="token-s">''</span> })
+
+<span class="token-k">async function</span> <span class="token-b">save</span>() {
+  <span class="token-k">const</span> updated = <span class="token-k">await</span> <span class="token-b">apiFetch</span>(<span class="token-s">`/clients/client/${clientId}`</span>, {
+    method: <span class="token-s">'PUT'</span>,
+    body: JSON.stringify(form.value)
+  })
+  console.log(<span class="token-s">'Cliente actualizado:'</span>, updated)
+}</pre>
+
+      <h3>Flujo completo de login en React</h3>
+      <pre><span class="token-c">// LoginPage.jsx</span>
+<span class="token-k">import</span> { useState } <span class="token-k">from</span> <span class="token-s">'react'</span>
+<span class="token-k">import</span> { login } <span class="token-k">from</span> <span class="token-s">'./authService.js'</span>
+
+<span class="token-k">export default function</span> <span class="token-b">LoginPage</span>() {
+  <span class="token-k">const</span> [email, setEmail] = useState(<span class="token-s">''</span>)
+  <span class="token-k">const</span> [pass, setPass]  = useState(<span class="token-s">''</span>)
+  <span class="token-k">const</span> [error, setError] = useState(<span class="token-k">null</span>)
+
+  <span class="token-k">async function</span> <span class="token-b">handleSubmit</span>(e) {
+    e.preventDefault()
+    <span class="token-k">try</span> {
+      <span class="token-k">await</span> <span class="token-b">login</span>(email, pass)
+      window.location.href = <span class="token-s">'/dashboard'</span>
+    } <span class="token-k">catch</span> (err) {
+      setError(err.message)
+    }
+  }
+
+  <span class="token-k">return</span> (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input value={email} onChange={e =&gt; setEmail(e.target.value)} /&gt;
+      &lt;input type=<span class="token-s">"password"</span> value={pass} onChange={e =&gt; setPass(e.target.value)} /&gt;
+      {error &amp;&amp; &lt;p style={{color:<span class="token-s">'red'</span>}}&gt;{error}&lt;/p&gt;}
+      &lt;button type=<span class="token-s">"submit"</span>&gt;Entrar&lt;/button&gt;
+    &lt;/form&gt;
+  )
+}</pre>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- ERROR CODES -->
+    <section>
+      <h2>Códigos de error</h2>
+      <table>
+        <tr><th>Código</th><th>Significado</th><th>Cuándo ocurre</th></tr>
+        <tr><td><code>400</code></td><td>Bad Request</td><td>Faltan campos requeridos (email, password)</td></tr>
+        <tr><td><code>401</code></td><td>Unauthorized</td><td>No se envió el token JWT</td></tr>
+        <tr><td><code>403</code></td><td>Forbidden</td><td>Token inválido o expirado</td></tr>
+        <tr><td><code>404</code></td><td>Not Found</td><td>Usuario, cliente o gym no existe</td></tr>
+        <tr><td><code>409</code></td><td>Conflict</td><td>Email o nombre de gym ya registrado</td></tr>
+        <tr><td><code>500</code></td><td>Server Error</td><td>Error inesperado en el servidor o DB</td></tr>
+      </table>
+      <div class="alert warn">
+        <span class="alert-icon">⚠️</span>
+        <span>Todos los errores devuelven JSON con un campo <code>message</code> o <code>error</code> descriptivo.</span>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>
