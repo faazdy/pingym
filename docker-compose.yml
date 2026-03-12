@@ -1,14 +1,19 @@
 version: '3'
 
 services:
-  mysql:
-    image: mysql:8
-    container_name: mysql_libros
+  postgres:
+    image: postgres:15
+    container_name: gymsaas_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: librosdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: gymsaaspass123
+      POSTGRES_DB: gymsaas
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
+      - postgres_data:/var/lib/postgresql/data
       - ./sql:/docker-entrypoint-initdb.d
+
+volumes:
+  postgres_data:

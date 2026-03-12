@@ -306,8 +306,7 @@
           <div class="step-num"></div>
           <div class="step-body">
             <h3>Clonar el repositorio</h3>
-            <pre>git clone &lt;repo-url&gt;
-cd gymsaas/backend</pre>
+            <pre>git clone &lt;repo-url&gt;</pre>
           </div>
         </div>
 
@@ -315,9 +314,11 @@ cd gymsaas/backend</pre>
           <div class="step-num"></div>
           <div class="step-body">
             <h3>Instalar dependencias</h3>
-            <pre>npm install</pre>
+            <pre>npm run build:backend</pre>
+            <pre>npm run build:frontend</pre>
           </div>
         </div>
+        
 
         <div class="step">
           <div class="step-num"></div>
@@ -334,7 +335,7 @@ cd gymsaas/backend</pre>
 <span class="token-n">JWT_SECRET</span>=<span class="token-s">tu-secreto-superseguro</span></pre>
             <div class="alert warn">
               <span class="alert-icon">⚠️</span>
-              <span>Nunca compartas tu <code>.env</code> real ni lo subas a Git. Agrégalo a <code>.gitignore</code>.</span>
+              <span>El archivo conecta directamente a la base de datos de producción. Nunca compartas tu <code>.env</code> real ni lo subas a Git. Agrégalo a <code>.gitignore</code>.</span>
             </div>
           </div>
         </div>
@@ -379,12 +380,12 @@ cd gymsaas/backend</pre>
           <div class="step-num"></div>
           <div class="step-body">
             <h3 id="run">Ejecutar el servidor</h3>
-            <pre><span class="token-c"># Modo desarrollo (hot-reload con nodemon)</span>
-npm run dev
+            <pre><span class="token-c"># Desde la raíz del proyecto</span>
+npm run start:backend
 
 <span class="token-c"># Salida esperada:</span>
 <span class="token-s">Servidor corriendo en puerto 3000</span>
-<span class="token-s">DB conectada: [ { now: 2024-... } ]</span></pre>
+<span class="token-s">DB conectada: [ { now: 2026-... } ]</span></pre>
             <div class="alert tip">
               <span class="alert-icon">✅</span>
               <span>Si ves ambos mensajes, el servidor está listo y la DB conectada correctamente.</span>

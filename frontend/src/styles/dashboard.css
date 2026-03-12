@@ -1,0 +1,143 @@
+.app {
+    min-height: 100vh;
+    font-family: 'Geist', sans-serif;
+}
+
+.main {
+
+    flex: 1;
+    background: #f9f9f9;
+    padding: 48px 48px 100px;
+}
+
+.page {
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+}
+
+.page__header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.page__tag {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #999;
+}
+
+.page__title {
+    font-size: 26px;
+    font-weight: 600;
+    color: #111;
+    letter-spacing: -0.03em;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.stat-card {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color 0.15s ease;
+}
+
+.stat-card:hover {
+    border-color: #111;
+}
+
+.stat-card__label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #999;
+}
+
+.stat-card__value {
+    font-size: 28px;
+    font-weight: 600;
+    color: #111;
+    letter-spacing: -0.04em;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.section__meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.section__title {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #999;
+}
+
+.quick-links {
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.quick-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid #e5e5e5;
+    text-decoration: none;
+    transition: background 0.15s ease;
+}
+
+.quick-link:last-child {
+    border-bottom: none;
+}
+
+.quick-link:hover {
+    background: #f9f9f9;
+}
+
+.quick-link__name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #111;
+    letter-spacing: -0.01em;
+}
+
+.quick-link__arrow {
+    font-size: 13px;
+    color: #bbb;
+    transition: color 0.15s, transform 0.15s;
+}
+
+.quick-link:hover .quick-link__arrow {
+    color: #111;
+    transform: translateX(2px);
+}

@@ -14,7 +14,7 @@ export const getClients = async (req, res) => {
     `;
 
     res.json(result);
-
+    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -37,7 +37,6 @@ export const getClientById = async (req, res) => {
     }
 
     res.json(result[0]);
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -57,25 +56,31 @@ export const updateClient = async (req, res) => {
       RETURNING *
     `;
 
-    res.json(result[0]);
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Cliente no encontrado" });
+    }
 
+    res.json(result[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// borrar un cliente
-export const deleteClient = async(req, res)=>{
+// Borrar cliente — borra el user y en cascada el client_profile
+export const deleteClient = async (req, res) => {
   try {
     const { id_user } = req.params;
 
-    await sql`
-      DELETE FROM users
-      WHERE id = ${id_user}
+    const result = await sql`
+      DELETE FROM users WHERE id = ${id_user} RETURNING id
     `;
 
-    res.json({ message: "User deleted", User: id_user })
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Cliente no encontrado" });
+    }
+
+    res.json({ message: "Cliente eliminado correctamente" });
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: error.message });
   }
-}
+};
