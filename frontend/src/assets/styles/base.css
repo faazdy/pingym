@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Geist:wght@400;500;600&display=swap');
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    /* font */
+    --font-sans: 'Geist', sans-serif;
+    --font-mono: 'Geist Mono', monospace;
+
+    /* colors */
+    --color-bg: #f4f4f2;
+    --color-surface: #fff;
+    --color-surface-alt: #f9f9f7;
+    --color-border: rgba(0, 0, 0, 0.07);
+    --color-border-hover: #111;
+    --color-secondary: #ffb703;
+
+    /* text */
+    --color-text: #111;
+    --color-text-sub: #888;
+    --color-text-muted: #bbb;
+    --color-text-meta: #999;
+
+    /* accent */
+    --color-accent: #111;
+    --color-accent-hover: #333;
+
+    /* dark */
+    --color-dark: #111;
+    --color-dark-hover: #222;
+    --color-dark-text: rgba(255, 255, 255, 0.9);
+    --color-dark-sub: rgba(255, 255, 255, 0.35);
+
+    /* status */
+    --color-success: #30a46c;
+    --color-success-bg: #f0fdf4;
+    --color-success-border: #bbf7d0;
+
+    --color-error: #e5484d;
+    --color-error-bg: #fff5f5;
+    --color-error-border: #fecaca;
+
+    --color-warning: #ea580c;
+    --color-warning-bg: #fff7ed;
+    --color-warning-border: #fed7aa;
+
+    --color-card-info: #0077b6;
+    --color-card-info-bg: #caf0f8;
+
+    /* radius */
+    --radius-sm: 5px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 999px;
+
+    /* shadows */
+    --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 2px 12px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--color-bg);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+}
+
+button:hover {
+    cursor: pointer;
+    background-color: var(--color-secondary) !important;
+    color: #fff !important;
+}

@@ -1,9 +1,26 @@
 <script setup>
+import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth.store'
 
 const router = useRouter()
 const auth = useAuthStore()
+
+const navItems = computed(() => {
+  const items = [
+    { to: '/dashboard', icon: '⬡', label: 'Dashboard' },
+    { to: '/clients', icon: '◎', label: 'Clientes', show: () => auth.isAdmin || auth.isTrainer },
+    { to: '/trainers', icon: '◉', label: 'Entrenadores', show: () => auth.isAdmin },
+    { to: '/memberships', icon: '▣', label: 'Membresías', show: () => auth.isAdmin },
+    { to: '/routines', icon: '◈', label: 'Rutinas' },
+    { to: '/attendance', icon: '✓', label: 'Asistencia', show: () => auth.hasGym },
+    { to: '/lockers', icon: '▢', label: 'Casilleros' },
+    { to: '/progress', icon: '↗', label: 'Progreso' },
+    { to: '/posts', icon: '◇', label: 'Noticias', show: () => auth.hasGym },
+    { to: '/qr', icon: '⬚', label: 'QR', show: () => auth.isAdmin },
+  ]
+  return items.filter((item) => (item.show ? item.show() : true))
+})
 
 const logout = () => {
   auth.logout()
@@ -20,30 +37,20 @@ const logout = () => {
 
       <nav class="liquidGlass-text">
         <ul>
-          <li>
-            <RouterLink to="/dashboard" active-class="nav-link--active">
-              <span class="nav-icon">⬡</span>
-              <span class="nav-label">Dashboard</span>
+          <!-- Logo -->
+          <li class="nav-logo-item">
+            <RouterLink to="/dashboard">
+              <img src="/logo.png" alt="Logo" class="nav-logo" />
             </RouterLink>
           </li>
-          <li>
-            <RouterLink to="/clients" active-class="nav-link--active">
-              <span class="nav-icon">◎</span>
-              <span class="nav-label">Clientes</span>
+
+          <li v-for="item in navItems" :key="item.to">
+            <RouterLink :to="item.to" active-class="nav-link--active">
+              <span class="nav-icon">{{ item.icon }}</span>
+              <span class="nav-label">{{ item.label }}</span>
             </RouterLink>
           </li>
-          <li>
-            <RouterLink to="/memberships" active-class="nav-link--active">
-              <span class="nav-icon">▣</span>
-              <span class="nav-label">Membresías</span>
-            </RouterLink>
-          </li>
-          <li>
-            <RouterLink to="/routines" active-class="nav-link--active">
-              <span class="nav-icon">◈</span>
-              <span class="nav-label">Rutinas</span>
-            </RouterLink>
-          </li>
+
           <li>
             <button class="nav-logout" @click="logout">
               <span class="nav-icon">⎋</span>
@@ -141,6 +148,28 @@ nav li {
   align-items: center;
 }
 
+/* ── Logo ── */
+.nav-logo-item {
+  margin-right: 4px;
+  padding-right: 8px;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.nav-logo-item a {
+  padding: 4px 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.nav-logo {
+  height: 28px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* ── Links ── */
 nav a,
 .nav-logout {
   display: flex;
@@ -204,5 +233,58 @@ nav li:last-child {
   color: #e5484d;
   background: rgba(229, 72, 77, 0.08);
   box-shadow: inset 0 0 0 1px rgba(229, 72, 77, 0.15);
+}
+/* ── Responsive Design ── */
+@media (max-width: 768px) {
+  .glass-header {
+    width: 95%; /* Evita que choque con los bordes de la pantalla */
+    bottom: 16px; /* Un poco más abajo en móviles para ganar espacio */
+  }
+
+  .glass-nav {
+    width: 100%;
+    padding: 0 4px;
+  }
+
+  nav ul {
+    /* Permite scroll horizontal si hay muchos iconos */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+    scrollbar-width: none; /* Oculta la barra en Firefox */
+    padding: 0 4px;
+  }
+
+  /* Oculta la barra de scroll en Chrome/Safari/Edge */
+  nav ul::-webkit-scrollbar {
+    display: none; 
+  }
+
+  /* Ocultar los textos en móvil para ahorrar espacio */
+  .nav-label {
+    display: none; 
+  }
+
+  /* Ajustar los botones para que sean más fáciles de tocar */
+  nav a,
+  .nav-logout {
+    padding: 10px 12px;
+    gap: 0;
+  }
+
+  /* Hacer los iconos un poco más grandes ya que no hay texto */
+  .nav-icon {
+    font-size: 18px; 
+  }
+
+  /* Ajustar los separadores laterales */
+  .nav-logo-item {
+    padding-right: 6px;
+    margin-right: 2px;
+  }
+
+  nav li:last-child {
+    padding-left: 6px;
+    margin-left: 2px;
+  }
 }
 </style>

@@ -13,7 +13,7 @@ import {
 const router = Router();
 
 // ─── Públicas ────────────────────────────────────────────────────
-router.post("/register", register);       // client independiente o admin+gym
+router.post("/register", register);       
 router.post("/login", login);
 
 // ─── Solo admins (desde el dashboard) ───────────────────────────

@@ -10,7 +10,9 @@ export const register = async (req, res) => {
     const { name, email, password, gym } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ message: "Nombre, email y contraseña son requeridos" });
+      return res
+        .status(400)
+        .json({ message: "Nombre, email y contraseña son requeridos" });
     }
 
     // Validar email duplicado
@@ -21,26 +23,54 @@ export const register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Caso 1: sin gym → client independiente
+    // Caso 1: sin gym → usuario independiente (perfil con gym_id null)
     if (!gym) {
       const result = await sql`
         INSERT INTO users (name, email, password, role)
         VALUES (${name}, ${email}, ${hashedPassword}, 'client')
         RETURNING id, name, email, role
       `;
-      return res.status(201).json(result[0]);
+      const user = result[0];
+      await sql`
+        INSERT INTO clients_profile (gym_id, user_id)
+        VALUES (NULL, ${user.id})
+      `;
+      return res.status(201).json(user);
     }
 
-    // Caso 2: con gym → crear gym + admin
+    // Caso 2: gym_id (string) → registro desde QR, cliente de un gym existente
+    if (typeof gym === "string") {
+      const gymExists = await sql`SELECT id FROM gyms WHERE id = ${gym}`;
+      if (gymExists.length === 0) {
+        return res.status(400).json({ message: "Gym no encontrado" });
+      }
+      const result = await sql`
+        INSERT INTO users (gym_id, name, email, password, role)
+        VALUES (${gym}, ${name}, ${email}, ${hashedPassword}, 'client')
+        RETURNING id, name, email, role, gym_id
+      `;
+      const user = result[0];
+      await sql`
+        INSERT INTO clients_profile (gym_id, user_id)
+        VALUES (${gym}, ${user.id})
+      `;
+      return res.status(201).json({ ...user, profile: true });
+    }
+
+    // Caso 3: con gym (objeto) → crear gym + admin
     const { name: gymName, address, phone } = gym;
 
     if (!gymName) {
-      return res.status(400).json({ message: "El nombre del gym es requerido" });
+      return res
+        .status(400)
+        .json({ message: "El nombre del gym es requerido" });
     }
 
     const existingGym = await sql`SELECT id FROM gyms WHERE name = ${gymName}`;
     if (existingGym.length > 0) {
-      return res.status(409).json({ message: "Ya existe un gym con ese nombre" });
+      return res
+        .status(409)
+        .json({ message: "Ya existe un gym con ese nombre" });
     }
 
     // Crear gym
@@ -59,9 +89,8 @@ export const register = async (req, res) => {
 
     res.status(201).json({
       user: newUser[0],
-      gym: newGym[0]
+      gym: newGym[0],
     });
-
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -71,15 +100,28 @@ export const register = async (req, res) => {
 // Crea trainers o clients vinculados al gym del admin
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role, phone, address, eps, emergency_contact } = req.body;
+    const {
+      name,
+      email,
+      password,
+      role,
+      phone,
+      address,
+      eps,
+      emergency_contact,
+    } = req.body;
     const gym_id = req.user.gym_id; // viene del token del admin
 
     if (!name || !email || !password || !role) {
-      return res.status(400).json({ message: "Nombre, email, contraseña y rol son requeridos" });
+      return res
+        .status(400)
+        .json({ message: "Nombre, email, contraseña y rol son requeridos" });
     }
 
     if (!["trainer", "client"].includes(role)) {
-      return res.status(400).json({ message: "Rol inválido. Solo se permite trainer o client" });
+      return res
+        .status(400)
+        .json({ message: "Rol inválido. Solo se permite trainer o client" });
     }
 
     const existing = await sql`SELECT id FROM users WHERE email = ${email}`;
@@ -108,13 +150,11 @@ export const registerUser = async (req, res) => {
     }
 
     res.status(201).json(user);
-
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// ─── Login ──────────────────────────────────────────────────────
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -124,9 +164,10 @@ export const login = async (req, res) => {
     }
 
     const result = await sql`
-      SELECT u.*, g.name as gym_name
+      SELECT u.*, g.name as gym_name, cp.id as client_profile_id
       FROM users u
       LEFT JOIN gyms g ON u.gym_id = g.id
+      LEFT JOIN clients_profile cp ON cp.user_id = u.id
       WHERE u.email = ${email}
     `;
 
@@ -142,7 +183,12 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, role: user.role, gym_id: user.gym_id },
+      {
+        id: user.id,
+        role: user.role,
+        gym_id: user.gym_id ?? null,
+        client_profile_id: user.client_profile_id ?? null,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -154,11 +200,11 @@ export const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        gym_id: user.gym_id,
-        gym_name: user.gym_name  // null si no tiene gym
-      }
+        gym_id: user.gym_id ?? null,
+        gym_name: user.gym_name ?? null,
+        client_profile_id: user.client_profile_id ?? null,
+      },
     });
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -191,7 +237,8 @@ export const deleteGym = async (req, res) => {
   try {
     const { id_gym } = req.params;
 
-    const result = await sql`DELETE FROM gyms WHERE id = ${id_gym} RETURNING id`;
+    const result =
+      await sql`DELETE FROM gyms WHERE id = ${id_gym} RETURNING id`;
 
     if (result.length === 0) {
       return res.status(404).json({ message: "Gym no encontrado" });
@@ -230,7 +277,8 @@ export const deleteUser = async (req, res) => {
   try {
     const { id_user } = req.params;
 
-    const result = await sql`DELETE FROM users WHERE id = ${id_user} RETURNING id`;
+    const result =
+      await sql`DELETE FROM users WHERE id = ${id_user} RETURNING id`;
 
     if (result.length === 0) {
       return res.status(404).json({ message: "Usuario no encontrado" });

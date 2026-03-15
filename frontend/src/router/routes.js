@@ -13,17 +13,47 @@ const routes = [
   {
     path: "/clients",
     component: () => import("../pages/dashboard/ClientPage.vue"),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, requiresGym: true, roles: ["admin", "trainer"] },
+  },
+  {
+    path: "/trainers",
+    component: () => import("../pages/dashboard/TrainersView.vue"),
+    meta: { requiresAuth: true, requiresGym: true, roles: ["admin", "trainer"] },
   },
   {
     path: "/memberships",
     component: () => import("../pages/dashboard/MembershipsView.vue"),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, requiresGym: true, roles: ["admin"] },
   },
   {
     path: "/routines",
     component: () => import("../pages/dashboard/RoutinesView.vue"),
     meta: { requiresAuth: true },
+  },
+  {
+    path: "/attendance",
+    component: () => import("../pages/dashboard/AttendanceView.vue"),
+    meta: { requiresAuth: true, requiresGym: true },
+  },
+  {
+    path: "/lockers",
+    component: () => import("../pages/dashboard/LockersView.vue"),
+    meta: { requiresAuth: true, requiresGym: true },
+  },
+  {
+    path: "/progress",
+    component: () => import("../pages/dashboard/ProgressView.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/posts",
+    component: () => import("../pages/dashboard/PostsView.vue"),
+    meta: { requiresAuth: true, requiresGym: true },
+  },
+  {
+    path: "/qr",
+    component: () => import("../pages/dashboard/QrView.vue"),
+    meta: { requiresAuth: true, requiresGym: true, roles: ["admin"] },
   },
 ];
 
@@ -36,6 +66,8 @@ router.beforeEach((to) => {
   const auth = useAuthStore();
   if (to.meta.requiresAuth && !auth.isAuthenticated) return "/login";
   if (to.meta.guest && auth.isAuthenticated) return "/dashboard";
+  if (to.meta.requiresGym && !auth.hasGym) return "/dashboard";
+  if (to.meta.roles?.length && !to.meta.roles.includes(auth.user?.role)) return "/dashboard";
 });
 
 export default router;
