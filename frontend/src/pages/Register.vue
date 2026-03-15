@@ -59,7 +59,7 @@ async function handleRegister() {
   <div class="auth">
     <div class="auth__card">
       <div class="auth__header">
-        <span class="auth__tag">GymSaaS</span>
+        <span class="auth__tag">PinGym</span>
         <h1 class="auth__title">Crear cuenta</h1>
         <p class="auth__sub">
           {{ gymFromQr ? `Registro en ${gymFromQr.name}` : 'Completá tus datos para registrarte' }}
@@ -94,18 +94,18 @@ async function handleRegister() {
 
         <!-- Paso 2: ¿Tenés gym? (solo si no viene de QR) -->
         <template v-if="step === 2 && !gymFromQr">
-          <p class="wizard__question">¿Querés registrar un gym?</p>
-          <p class="wizard__sub">Si tenés un gimnasio, podés registrarlo y administrarlo desde la app.</p>
+          <p class="wizard__question">¿Quieres registrar un gym?</p>
+          <p class="wizard__sub">Si tienes un gimnasio, puedes registrarlo y administrarlo desde la app.</p>
           <div class="wizard__options">
             <button type="button" class="wizard__option" @click="hasGym = true; step = 3">
               <span class="wizard__option-icon">🏋️</span>
               <span class="wizard__option-label">Sí, tengo un gym</span>
-              <span class="wizard__option-sub">Registrá tu gym y gestioná clientes</span>
+              <span class="wizard__option-sub">Registra tu gym y gestiona clientes</span>
             </button>
             <button type="button" class="wizard__option" @click="hasGym = false; handleRegister()">
               <span class="wizard__option-icon">👤</span>
               <span class="wizard__option-label">No, solo quiero usar la app</span>
-              <span class="wizard__option-sub">Controlá tus ejercicios y progreso</span>
+              <span class="wizard__option-sub">Controla tus ejercicios y progreso</span>
             </button>
           </div>
           <button type="button" class="btn btn--ghost" @click="step = 1">← Volver</button>
@@ -144,7 +144,7 @@ async function handleRegister() {
 
       <p class="auth__footer">
         ¿Ya tenés cuenta?
-        <router-link class="auth__link" to="/login">Iniciá sesión</router-link>
+        <router-link class="auth__link" to="/login">Inicia sesión</router-link>
       </p>
     </div>
   </div>

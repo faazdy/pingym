@@ -2,9 +2,9 @@
   <div class="auth">
     <div class="auth__card">
       <div class="auth__header">
-        <span class="auth__tag">GymSaaS</span>
+        <span class="auth__tag">PinGym</span>
         <h1 class="auth__title">Bienvenido</h1>
-        <p class="auth__sub">Iniciá sesión en tu cuenta</p>
+        <p class="auth__sub">Inicia sesión en tu cuenta</p>
       </div>
 
       <form class="auth__form" @submit.prevent="handleLogin">
@@ -25,7 +25,7 @@
       </form>
 
       <p class="auth__footer">
-        ¿No tenés cuenta?
+        ¿No tienes una cuenta?
         <router-link class="auth__link" to="/register">Registrate</router-link>
       </p>
     </div>
