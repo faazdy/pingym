@@ -72,9 +72,3 @@ body {
     color: var(--color-text);
     -webkit-font-smoothing: antialiased;
 }
-
-button:hover {
-    cursor: pointer;
-    background-color: var(--color-secondary) !important;
-    color: #fff !important;
-}

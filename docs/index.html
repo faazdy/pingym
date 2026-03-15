@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GymSaaS — Documentación completa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --surface2: #1a1a1a;
+      --border: #222222;
+      --border2: #2a2a2a;
+      --text: #ededed;
+      --muted: #737373;
+      --accent: #7c3aed;
+      --accent2: #a855f7;
+      --green: #22c55e;
+      --blue: #3b82f6;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --orange: #f97316;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(12px);
+      padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .logo-badge {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px; padding: 4px 10px;
+      font-weight: 700; font-size: 13px; letter-spacing: .5px;
+    }
+    .nav-title { font-size: 14px; color: var(--muted); font-weight: 500; }
+    .nav-links { display: flex; gap: 24px; flex-wrap: wrap; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 13px;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .wrapper {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      max-width: 1280px; margin: 0 auto;
+      min-height: calc(100vh - 60px);
+    }
+    aside {
+      position: sticky; top: 60px;
+      height: calc(100vh - 60px); overflow-y: auto;
+      border-right: 1px solid var(--border);
+      padding: 32px 20px;
+    }
+    aside h4 {
+      font-size: 11px; letter-spacing: 1px; color: var(--muted);
+      text-transform: uppercase; margin-bottom: 12px; margin-top: 24px;
+      font-weight: 600;
+    }
+    aside h4:first-child { margin-top: 0; }
+    aside a {
+      display: block; padding: 6px 12px; border-radius: 8px;
+      color: var(--muted); text-decoration: none; font-size: 13px;
+      transition: all .15s; margin-bottom: 2px;
+    }
+    aside a:hover { background: var(--surface2); color: var(--text); }
+    main { padding: 48px 56px; max-width: 900px; }
+    section { margin-bottom: 72px; }
+    h1 { font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; line-height: 1.2; }
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 16px; letter-spacing: -.4px; }
+    h3 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; }
+    p { color: #aaa; font-size: 14px; margin-bottom: 12px; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(124,58,237,.15); border: 1px solid rgba(168,85,247,.3);
+      color: var(--accent2); border-radius: 100px;
+      padding: 4px 14px; font-size: 12px; font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .hero-tag::before { content: '●'; font-size: 8px; color: var(--green); }
+    .hero-desc { font-size: 16px; color: #999; max-width: 600px; margin-bottom: 32px; }
+    .badge {
+      display: inline-block; border-radius: 6px;
+      padding: 2px 8px; font-size: 11px; font-weight: 600;
+      font-family: 'JetBrains Mono', monospace; letter-spacing: .3px;
+    }
+    .badge.get    { background: rgba(59,130,246,.15); color: var(--blue); border: 1px solid rgba(59,130,246,.25); }
+    .badge.post   { background: rgba(34,197,94,.15);  color: var(--green);  border: 1px solid rgba(34,197,94,.25); }
+    .badge.put    { background: rgba(234,179,8,.15);  color: var(--yellow); border: 1px solid rgba(234,179,8,.25); }
+    .badge.delete { background: rgba(239,68,68,.15);  color: var(--red);    border: 1px solid rgba(239,68,68,.25); }
+    .badge.lock   { background: rgba(249,115,22,.15); color: var(--orange); border: 1px solid rgba(249,115,22,.25); }
+    .badge.open   { background: rgba(34,197,94,.15);  color: var(--green);  border: 1px solid rgba(34,197,94,.25); }
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 20px 24px; overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; line-height: 1.7; margin: 12px 0 20px;
+    }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    p code, li code {
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 4px; padding: 1px 6px; font-size: 12px;
+    }
+    .token-c { color: #6b7280; }
+    .token-k { color: #a855f7; }
+    .token-s { color: #22c55e; }
+    .token-n { color: #60a5fa; }
+    .token-v { color: #fb923c; }
+    .token-b { color: #e879f9; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 20px 24px; margin-bottom: 16px;
+    }
+    .card-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
+    }
+    .endpoint-path {
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text);
+    }
+    .card p { margin-bottom: 6px; }
+    table {
+      width: 100%; border-collapse: collapse;
+      font-size: 13px; margin: 12px 0 20px;
+    }
+    th {
+      text-align: left; padding: 8px 14px;
+      color: var(--muted); font-weight: 500; font-size: 11px;
+      text-transform: uppercase; letter-spacing: .5px;
+      border-bottom: 1px solid var(--border2);
+    }
+    td {
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      color: #bbb;
+    }
+    td code { background: var(--surface2); border: 1px solid var(--border2); border-radius: 4px; padding: 1px 6px; }
+    tr:last-child td { border-bottom: none; }
+    .steps { counter-reset: step; }
+    .step { display: flex; gap: 20px; margin-bottom: 28px; }
+    .step-num {
+      counter-increment: step;
+      flex-shrink: 0;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+    }
+    .step-num::before { content: counter(step); }
+    .step-body { flex: 1; }
+    .step-body h3 { margin-bottom: 6px; font-size: 15px; }
+    .alert {
+      border-radius: var(--radius); padding: 14px 18px;
+      font-size: 13px; margin: 16px 0; display: flex; gap: 10px;
+      align-items: flex-start;
+    }
+    .alert.info  { background: rgba(59,130,246,.1); border: 1px solid rgba(59,130,246,.2); color: #93c5fd; }
+    .alert.warn  { background: rgba(234,179,8,.1);  border: 1px solid rgba(234,179,8,.2);  color: #fde68a; }
+    .alert.tip   { background: rgba(34,197,94,.1);  border: 1px solid rgba(34,197,94,.2);  color: #86efac; }
+    .alert-icon  { font-size: 16px; line-height: 1; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+    ul li { color: #aaa; font-size: 14px; margin-bottom: 6px; margin-left: 20px; }
+    .stack-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0;
+    }
+    .stack-item {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 16px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .stack-item span:first-child { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+    .stack-item span:last-child { font-size: 14px; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <span class="logo-badge">GymSaaS</span>
+    <span class="nav-title">Documentación Backend & Frontend</span>
+  </div>
+  <div class="nav-links">
+    <a href="#inicio">Inicio</a>
+    <a href="#iniciar-proyecto">Iniciar proyecto</a>
+    <a href="#api-auth">Auth</a>
+    <a href="#api-clients">Clients</a>
+    <a href="#api-memberships">Memberships</a>
+    <a href="#api-routines">Routines</a>
+    <a href="#api-otros">Otros APIs</a>
+    <a href="#frontend">Frontend</a>
+    <a href="#ejemplos-api">Ejemplos API</a>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <aside>
+    <h4>Introducción</h4>
+    <a href="#inicio">Descripción general</a>
+    <a href="#stack">Stack tecnológico</a>
+    <a href="#estructura">Estructura del proyecto</a>
+
+    <h4>Iniciar el proyecto</h4>
+    <a href="#iniciar-proyecto">Desde package.json raíz</a>
+    <a href="#env">Variables de entorno</a>
+    <a href="#db">Base de datos</a>
+
+    <h4>API Reference</h4>
+    <a href="#api-auth">Auth — /api/auth</a>
+    <a href="#api-clients">Clients — /api/clients</a>
+    <a href="#api-memberships">Memberships — /api/memberships</a>
+    <a href="#api-routines">Routines — /api/routines</a>
+    <a href="#api-attendance">Attendance — /api/attendance</a>
+    <a href="#api-lockers">Lockers — /api/lockers</a>
+    <a href="#api-progress">Progress — /api/progress</a>
+    <a href="#api-posts">Posts — /api/posts</a>
+    <a href="#api-exercises">Exercises — /api/exercises</a>
+    <a href="#api-qr">QR — /api/qr</a>
+    <a href="#api-trainers">Trainers — /api/trainers</a>
+
+    <h4>Autenticación</h4>
+    <a href="#jwt">Uso del JWT</a>
+
+    <h4>Frontend</h4>
+    <a href="#frontend">Estructura Vue</a>
+    <a href="#frontend-api">Servicio API</a>
+    <a href="#frontend-rutas">Rutas y roles</a>
+
+    <h4>Ejemplos</h4>
+    <a href="#ejemplos-api">Uso de la API</a>
+    <a href="#errores">Códigos de error</a>
+  </aside>
+
+  <main>
+
+    <!-- HERO -->
+    <section id="inicio">
+      <div class="hero-tag">v1.0.0 · Backend + Frontend</div>
+      <h1>GymSaaS<br />Documentación completa</h1>
+      <p class="hero-desc">
+        API REST para gestión de gimnasios: autenticación, clientes, membresías, rutinas, asistencia, casilleros, progreso, posts y más. Frontend en Vue 3 + Vite.
+      </p>
+      <div class="alert info">
+        <span class="alert-icon">ℹ️</span>
+        <span>Backend: <code>http://localhost:3000</code> · Frontend: <code>http://localhost:5173</code></span>
+      </div>
+
+      <h2 id="stack">Stack tecnológico</h2>
+      <div class="stack-grid">
+        <div class="stack-item"><span>Backend</span><span>Node.js + Express 5 (ESM)</span></div>
+        <div class="stack-item"><span>Base de datos</span><span>PostgreSQL (postgres.js)</span></div>
+        <div class="stack-item"><span>Auth</span><span>JWT + bcrypt</span></div>
+        <div class="stack-item"><span>Frontend</span><span>Vue 3 + Vite 7</span></div>
+        <div class="stack-item"><span>Estado</span><span>Pinia</span></div>
+        <div class="stack-item"><span>HTTP cliente</span><span>Axios</span></div>
+      </div>
+
+      <h2 id="estructura">Estructura del proyecto</h2>
+      <pre>gymsaas/
+├── <span class="token-n">package.json</span>           <span class="token-c"># Scripts raíz: build, start backend/frontend</span>
+├── backend/
+│   ├── app.js              <span class="token-c"># Express, CORS, rutas API</span>
+│   ├── .env                <span class="token-c"># Variables de entorno (no subir a Git)</span>
+│   ├── config/db.js        <span class="token-c"># Conexión PostgreSQL</span>
+│   ├── src/server.js       <span class="token-c"># Arranque del servidor</span>
+│   ├── routes/             <span class="token-c"># auth, clients, memberships, routines, attendance, lockers, progress, posts, exercises, qr, trainers</span>
+│   ├── controllers/
+│   └── middleware/auth.middleware.js
+├── frontend/
+│   ├── .env
+│   ├── src/
+│   │   ├── main.js
+│   │   ├── App.vue
+│   │   ├── services/api.js <span class="token-c"># Axios con baseURL e interceptores</span>
+│   │   ├── stores/auth.store.js
+│   │   ├── router/routes.js
+│   │   ├── router/routes.js
+│   │   └── pages/          <span class="token-c"># Login, Register, dashboard/*</span>
+│   └── vite.config.js
+├── sql/
+│   └── init.sql            <span class="token-c"># Schema de la base de datos</span>
+└── docs/
+    └── index.html          <span class="token-c"># Esta documentación</span></pre>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- INICIAR PROYECTO -->
+    <section id="iniciar-proyecto">
+      <h2>Iniciar el proyecto desde la raíz</h2>
+      <p>En la <strong>carpeta raíz del proyecto</strong> (donde está el <code>package.json</code> principal):</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-body">
+            <h3>1. Instalar dependencias (backend y frontend)</h3>
+            <pre><span class="token-c"># Instala en backend y frontend a la vez</span>
+npm run start:project</pre>
+            <p>O por separado:</p>
+            <pre>npm run build:backend   <span class="token-c"># cd backend && npm install</span>
+npm run build:frontend  <span class="token-c"># cd frontend && npm install</span></pre>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-body">
+            <h3 id="env">2. Configurar variables de entorno</h3>
+            <p>Crea <code>backend/.env</code> con al menos:</p>
+            <pre><span class="token-c"># Conexión PostgreSQL (si usas Docker local → ver paso 3 Opción A; si usas producción → tu URL)</span>
+<span class="token-n">DATABASE_URL</span>=<span class="token-s">postgresql://usuario:password@host:puerto/nombre_base</span>
+
+<span class="token-c"># Servidor</span>
+<span class="token-n">PORT</span>=<span class="token-v">3000</span>
+
+<span class="token-c"># JWT (string largo aleatorio que puedes definir como quieras, recomendable un uuid)</span>
+<span class="token-n">JWT_SECRET</span>=<span class="token-s">tu-secreto-superseguro</span>
+
+<span class="token-c"># Opcional: URL del frontend (para QR de registro)</span>
+<span class="token-n">FRONTEND_URL</span>=<span class="token-s">http://localhost:5173</span></pre>
+            <div class="alert warn">
+              <span class="alert-icon">⚠️</span>
+              <span>No subas <code>.env</code> a Git. Debe estar en <code>.gitignore</code>.</span>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-body">
+            <h3 id="db">3. Crear la base de datos</h3>
+            <p>Puedes usar una base de datos <strong>local con Docker</strong> (recomendado para desarrollo) o una base <strong>en producción</strong> (Supabase, etc.).</p>
+
+            <h4>Opción A — Base de datos local con Docker Compose (recomendado)</h4>
+            <p>Desde la <strong>carpeta raíz del proyecto</strong>, levanta PostgreSQL con el <code>docker-compose.yml</code>. El contenedor monta la carpeta <code>sql/</code> como scripts de inicialización, así que <code>sql/init.sql</code> se ejecuta solo la primera vez. No necesitas credenciales de producción.</p>
+            <pre><span class="token-c"># En la raíz del proyecto (donde está docker-compose.yml)</span>
+npm run docker:init</pre>
+            <p>Esto ejecuta <code>docker compose up -d</code>: Postgres queda en <code>localhost:5432</code>, usuario <code>postgres</code>, contraseña <code>gymsaaspass123</code>, base de datos <code>gymsaas</code>. En <code>backend/.env</code> usa:</p>
+            <pre><span class="token-n">DATABASE_URL</span>=<span class="token-s">postgresql://postgres:gymsaaspass123@localhost:5432/gymsaas</span></pre>
+            <p>Comandos útiles:</p>
+            <pre>npm run docker:stop    <span class="token-c"># Detener contenedores</span>
+npm run docker:restart <span class="token-c"># Reiniciar (down + up -d)</span></pre>
+            <div class="alert tip">
+              <span class="alert-icon">✅</span>
+              <span>Con esta opción no necesitas configurar Supabase ni ninguna DB en la nube para empezar a desarrollar.</span>
+            </div>
+
+            <h4>Opción B — Base de datos en producción</h4>
+            <p>Si prefieres usar una base de datos ya desplegada (por ejemplo Supabase): crea el proyecto y la base, luego ejecuta manualmente el contenido de <code>sql/init.sql</code> en el SQL Editor del proveedor. En <code>backend/.env</code> configura <code>DATABASE_URL</code> con las credenciales que te proporcione el servicio (usuario, contraseña, host, puerto y nombre de la base).</p>
+            <pre><span class="token-n">DATABASE_URL</span>=<span class="token-s">postgresql://usuario:password@host:puerto/nombre_base</span></pre>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-body">
+            <h3>4. Arrancar backend y frontend</h3>
+            <pre><span class="token-c"># Terminal 1 — Backend</span>
+npm run start:backend
+
+<span class="token-c"># Terminal 2 — Frontend</span>
+npm run start:frontend</pre>
+            <p>Backend quedará en <code>http://localhost:3000</code>, frontend en <code>http://localhost:5173</code>.</p>
+            <div class="alert tip">
+              <span class="alert-icon">✅</span>
+              <span>En la consola del backend deberías ver: <code>Servidor corriendo en puerto 3000</code> y <code>DB conectada: [...]</code></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- AUTH API -->
+    <section id="api-auth">
+      <h2>Auth — <code>/api/auth</code></h2>
+      <p>Registro, login y CRUD de usuarios y gyms.</p>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge open">Público</span>
+          <span class="endpoint-path">/api/auth/register</span>
+        </div>
+        <p><strong>Registro.</strong> Tres casos: (1) Cliente sin gym — solo <code>name</code>, <code>email</code>, <code>password</code>. (2) Cliente de un gym existente — añade <code>gym</code> como string (gym_id). (3) Crear gym + admin — <code>gym</code> como objeto <code>{ name, address?, phone? }</code>.</p>
+        <h3>Body (JSON)</h3>
+        <table>
+          <tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr>
+          <tr><td><code>name</code></td><td>string</td><td>✅</td><td>Nombre del usuario</td></tr>
+          <tr><td><code>email</code></td><td>string</td><td>✅</td><td>Email único</td></tr>
+          <tr><td><code>password</code></td><td>string</td><td>✅</td><td>Se hashea con bcrypt</td></tr>
+          <tr><td><code>gym</code></td><td>string \| object</td><td>—</td><td>UUID del gym (cliente) o <code>{ name, address?, phone? }</code> (crear gym + admin)</td></tr>
+        </table>
+        <h3>Ejemplo — Crear gym y admin</h3>
+        <pre>{
+  <span class="token-n">"name"</span>: <span class="token-s">"Admin Gym"</span>,
+  <span class="token-n">"email"</span>: <span class="token-s">"admin@gym.com"</span>,
+  <span class="token-n">"password"</span>: <span class="token-s">"secret123"</span>,
+  <span class="token-n">"gym"</span>: {
+    <span class="token-n">"name"</span>: <span class="token-s">"Iron Gym"</span>,
+    <span class="token-n">"address"</span>: <span class="token-s">"Calle 72 #10-30"</span>,
+    <span class="token-n">"phone"</span>: <span class="token-s">"601 456 7890"</span>
+  }
+}</pre>
+        <h3>Respuesta 201</h3>
+        <pre>{ <span class="token-n">"user"</span>: { <span class="token-n">"id"</span>, <span class="token-n">"name"</span>, <span class="token-n">"email"</span>, <span class="token-n">"role"</span>, <span class="token-n">"gym_id"</span> }, <span class="token-n">"gym"</span>: { <span class="token-n">"id"</span>, <span class="token-n">"name"</span> } }</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge open">Público</span>
+          <span class="endpoint-path">/api/auth/login</span>
+        </div>
+        <p>Login. Body: <code>{ "email", "password" }</code>. Devuelve <code>{ "token", "user" }</code>. JWT expira en 7 días.</p>
+        <h3>Respuesta 200</h3>
+        <pre>{
+  <span class="token-n">"token"</span>: <span class="token-s">"eyJhbGciOiJIUzI1NiIs..."</span>,
+  <span class="token-n">"user"</span>: {
+    <span class="token-n">"id"</span>, <span class="token-n">"name"</span>, <span class="token-n">"email"</span>, <span class="token-n">"role"</span>,
+    <span class="token-n">"gym_id"</span>, <span class="token-n">"gym_name"</span>, <span class="token-n">"client_profile_id"</span>
+  }
+}</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 JWT Admin</span>
+          <span class="endpoint-path">/api/auth/register-user</span>
+        </div>
+        <p>Registrar trainer o client desde el dashboard (gym_id del token). Body: <code>name</code>, <code>email</code>, <code>password</code>, <code>role</code> (<code>trainer</code> \| <code>client</code>). Opcionales para client: <code>phone</code>, <code>address</code>, <code>eps</code>, <code>emergency_contact</code>.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="badge put">PUT</span>
+          <span class="badge lock">🔒 JWT Admin</span>
+          <span class="endpoint-path">/api/auth/gym/:id_gym</span>
+        </div>
+        <p>Actualizar gym. Body: <code>name_gym</code>, <code>address</code>, <code>phone</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge delete">DELETE</span>
+          <span class="badge lock">🔒 JWT Admin</span>
+          <span class="endpoint-path">/api/auth/gym/:id_gym</span>
+        </div>
+        <p>Eliminar gym (cascada: usuarios y perfiles).</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge put">PUT</span>
+          <span class="badge lock">🔒 JWT Admin</span>
+          <span class="endpoint-path">/api/auth/user/:id_user</span>
+        </div>
+        <p>Actualizar usuario. Body: <code>name</code>, <code>email</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge delete">DELETE</span>
+          <span class="badge lock">🔒 JWT Admin</span>
+          <span class="endpoint-path">/api/auth/user/:id_user</span>
+        </div>
+        <p>Eliminar usuario (y perfil en cascada).</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- CLIENTS -->
+    <section id="api-clients">
+      <h2>Clients — <code>/api/clients</code></h2>
+      <p>Todos requieren JWT. Admin o trainer: mismo gym. Cliente: solo su propio perfil donde aplique.</p>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 Admin/Trainer</span>
+          <span class="endpoint-path">/api/clients/:gym_id</span>
+        </div>
+        <p>Lista de clientes del gym con perfil, membresía activa y días restantes.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/clients/detail/:id_client</span>
+        </div>
+        <p>Un cliente por ID de perfil (clients_profile.id). Cliente solo puede ver el suyo.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge put">PUT</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/clients/detail/:id_client</span>
+        </div>
+        <p>Actualizar perfil. Body: <code>phone</code>, <code>address</code>, <code>eps</code>, <code>emergency_contact</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge delete">DELETE</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/clients/:id_user</span>
+        </div>
+        <p>Eliminar cliente (parámetro es <code>user_id</code>, no id del perfil).</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- MEMBERSHIPS -->
+    <section id="api-memberships">
+      <h2>Memberships — <code>/api/memberships</code></h2>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 Admin/Trainer</span>
+          <span class="endpoint-path">/api/memberships/gym/:gym_id</span>
+        </div>
+        <p>Lista de planes de membresía del gym.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/memberships</span>
+        </div>
+        <p>Crear membresía. Body: <code>name</code>, <code>duration_days</code> (número).</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/memberships/assign</span>
+        </div>
+        <p>Asignar membresía a cliente. Body: <code>client_id</code>, <code>membership_id</code>. Si ya tiene activa, se marca como expired y se crea la nueva.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/memberships/client/:client_id</span>
+        </div>
+        <p>Membresías del cliente (con días restantes). Solo propio cliente o admin/trainer del gym.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge put">PUT</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/memberships/:id</span>
+        </div>
+        <p>Actualizar membresía. Body: <code>name</code>, <code>duration_days</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge delete">DELETE</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/memberships/:id</span>
+        </div>
+        <p>Eliminar membresía.</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- ROUTINES -->
+    <section id="api-routines">
+      <h2>Routines — <code>/api/routines</code></h2>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 Admin/Trainer + gym</span>
+          <span class="endpoint-path">/api/routines/gym/:gym_id</span>
+        </div>
+        <p>Rutinas del gym con nombre del trainer.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/routines/my</span>
+        </div>
+        <p>Mis rutinas (asignadas a mí o creadas por mí si soy cliente/trainer independiente).</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/routines/exercises</span>
+        </div>
+        <p>Catálogo global de ejercicios (para armar rutinas).</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/routines</span>
+        </div>
+        <p>Crear rutina. Body: <code>name</code> (requerido), <code>description</code>, <code>trainer_id</code>, <code>exercises</code> (array de <code>{ exercise_id, sets?, reps?, suggested_weight? }</code>).</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/routines/:routine_id/exercises</span>
+        </div>
+        <p>Ejercicios de una rutina (si tienes permiso para verla).</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 Admin/Trainer</span>
+          <span class="endpoint-path">/api/routines/assign</span>
+        </div>
+        <p>Asignar rutina a cliente. Body: <code>client_id</code>, <code>routine_id</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/routines/client/:client_id</span>
+        </div>
+        <p>Rutinas asignadas a un cliente (admin/trainer mismo gym o cliente solo el suyo).</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/routines/:routine_id/exercises</span>
+        </div>
+        <p>Añadir ejercicio a rutina. Body: <code>exercise_id</code> (requerido), <code>sets</code>, <code>reps</code>, <code>suggested_weight</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge delete">DELETE</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/routines/:routine_id/exercises/:exercise_id</span>
+        </div>
+        <p>Quitar ejercicio de la rutina (<code>exercise_id</code> es el ID en <code>routine_exercises</code>).</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- OTROS APIs -->
+    <section id="api-otros">
+      <h2>Attendance — <code>/api/attendance</code></h2>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 Admin/Trainer</span>
+          <span class="endpoint-path">/api/attendance/check-in</span>
+        </div>
+        <p>Registrar entrada. Body: <code>client_id</code>. Requiere gym.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/attendance/my</span>
+        </div>
+        <p>Mi historial de asistencia (cliente con gym).</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 Admin/Trainer</span>
+          <span class="endpoint-path">/api/attendance/:gym_id?day=YYYY-MM-DD</span>
+        </div>
+        <p>Historial del gym. Query: <code>day</code> (fecha), <code>week</code> (ej. <code>2025-W11</code>). Sin query: últimos 30 días.</p>
+      </div>
+    </section>
+
+    <section id="api-lockers">
+      <h2>Lockers — <code>/api/lockers</code></h2>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 JWT + gym</span>
+          <span class="endpoint-path">/api/lockers/my</span>
+        </div>
+        <p>Mi casillero asignado (cliente).</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/lockers/:gym_id</span>
+        </div>
+        <p>Lista de casilleros del gym con asignación actual.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/lockers</span>
+        </div>
+        <p>Crear casillero. Body: <code>locker_number</code> (número).</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/lockers/assign</span>
+        </div>
+        <p>Asignar casillero a cliente. Body: <code>client_id</code>, <code>locker_id</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/lockers/release</span>
+        </div>
+        <p>Liberar casillero. Body: <code>client_id</code>, <code>locker_id</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge delete">DELETE</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/lockers/:id</span>
+        </div>
+        <p>Eliminar casillero (solo si no está ocupado).</p>
+      </div>
+    </section>
+
+    <section id="api-progress">
+      <h2>Progress — <code>/api/progress</code></h2>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/progress</span>
+        </div>
+        <p>Registrar progreso. Body: <code>client_id</code>, <code>exercise_id</code>, <code>weight</code> y/o <code>reps</code>. Cliente solo puede su propio <code>client_id</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/progress/client/:client_id?exercise_id=uuid</span>
+        </div>
+        <p>Progreso de un cliente. Query opcional <code>exercise_id</code> para filtrar.</p>
+      </div>
+    </section>
+
+    <section id="api-posts">
+      <h2>Posts — <code>/api/posts</code></h2>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 JWT + mismo gym</span>
+          <span class="endpoint-path">/api/posts/gym/:gym_id</span>
+        </div>
+        <p>Posts del gym.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/posts/detail/:id</span>
+        </div>
+        <p>Un post por ID (mismo gym).</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 Admin/Trainer</span>
+          <span class="endpoint-path">/api/posts</span>
+        </div>
+        <p>Crear post. Body: <code>title</code> (requerido), <code>content</code>, <code>image</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge put">PUT</span>
+          <span class="badge lock">🔒 Admin/Trainer</span>
+          <span class="endpoint-path">/api/posts/:id</span>
+        </div>
+        <p>Actualizar post. Body: <code>title</code>, <code>content</code>, <code>image</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge delete">DELETE</span>
+          <span class="badge lock">🔒 Admin/Trainer</span>
+          <span class="endpoint-path">/api/posts/:id</span>
+        </div>
+        <p>Eliminar post.</p>
+      </div>
+    </section>
+
+    <section id="api-exercises">
+      <h2>Exercises — <code>/api/exercises</code></h2>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 JWT</span>
+          <span class="endpoint-path">/api/exercises</span>
+        </div>
+        <p>Lista de ejercicios (catálogo global).</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 Admin + gym</span>
+          <span class="endpoint-path">/api/exercises</span>
+        </div>
+        <p>Crear ejercicio. Body: <code>name</code> (requerido), <code>muscle_group</code>, <code>description</code>.</p>
+      </div>
+    </section>
+
+    <section id="api-qr">
+      <h2>QR — <code>/api/qr</code></h2>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge open">Público</span>
+          <span class="endpoint-path">/api/qr/register/:gym_id</span>
+        </div>
+        <p>Datos para generar QR de registro: <code>gym_id</code>, <code>gym_name</code>, <code>register_url</code> (URL del front con <code>?gym_id=...</code>).</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/qr/register/:gym_id/secure</span>
+        </div>
+        <p>Mismo payload pero con token (solo admin del gym).</p>
+      </div>
+    </section>
+
+    <section id="api-trainers">
+      <h2>Trainers — <code>/api/trainers</code></h2>
+      <p>Solo admin (gym_id del token).</p>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge get">GET</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/trainers</span>
+        </div>
+        <p>Lista de trainers del gym.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge post">POST</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/trainers</span>
+        </div>
+        <p>Registrar trainer. Body: <code>name</code>, <code>email</code>, <code>password</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge put">PUT</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/trainers/:id</span>
+        </div>
+        <p>Actualizar trainer. Body: <code>name</code>, <code>email</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="badge delete">DELETE</span>
+          <span class="badge lock">🔒 Admin</span>
+          <span class="endpoint-path">/api/trainers/:id</span>
+        </div>
+        <p>Eliminar trainer.</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section id="jwt">
+      <h2>Autenticación con JWT</h2>
+      <p>Endpoints protegidos requieren el header:</p>
+      <pre>Authorization: Bearer &lt;token&gt;</pre>
+      <p>El token se obtiene con <code>POST /api/auth/login</code>. Contiene <code>id</code>, <code>role</code>, <code>gym_id</code>, <code>client_profile_id</code>. Expira en 7 días.</p>
+      <table>
+        <tr><th>Código</th><th>Motivo</th></tr>
+        <tr><td><code>401</code></td><td>Falta token o token inválido/expirado</td></tr>
+        <tr><td><code>403</code></td><td>Rol insuficiente o recurso de otro gym</td></tr>
+      </table>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- FRONTEND -->
+    <section id="frontend">
+      <h2>Frontend (Vue 3 + Vite)</h2>
+      <p>El frontend usa <code>VITE_API_URL</code> (por defecto <code>http://localhost:3000/api</code>).</p>
+      <h3 id="frontend-api">Servicio API</h3>
+      <p><code>frontend/src/services/api.js</code>: instancia de Axios con <code>baseURL</code>, interceptor de request que añade <code>Authorization: Bearer &lt;token&gt;</code> desde <code>localStorage</code>, e interceptor de response que ante 401 limpia token y redirige a <code>/login</code>.</p>
+      <pre><span class="token-c">// Uso típico en un componente</span>
+<span class="token-k">import</span> api <span class="token-k">from</span> <span class="token-s">'@/services/api.js'</span>
+
+<span class="token-c">// GET</span>
+<span class="token-k">const</span> { data } = <span class="token-k">await</span> api.get(<span class="token-s">'/clients/'</span> + gymId)
+<span class="token-c">// POST</span>
+<span class="token-k">const</span> { data } = <span class="token-k">await</span> api.post(<span class="token-s">'/auth/register'</span>, body)</pre>
+      <h3 id="frontend-rutas">Rutas y roles</h3>
+      <p>Rutas principales en <code>router/routes.js</code>:</p>
+      <table>
+        <tr><th>Ruta</th><th>Vista</th><th>Requisitos</th></tr>
+        <tr><td><code>/login</code>, <code>/register</code></td><td>Login, Register</td><td>Invitado (si ya hay sesión → dashboard)</td></tr>
+        <tr><td><code>/dashboard</code></td><td>Dashboard</td><td>Auth</td></tr>
+        <tr><td><code>/clients</code></td><td>ClientPage</td><td>Auth, gym, admin o trainer</td></tr>
+        <tr><td><code>/trainers</code></td><td>TrainersView</td><td>Auth, gym, admin o trainer</td></tr>
+        <tr><td><code>/memberships</code></td><td>MembershipsView</td><td>Auth, gym, admin</td></tr>
+        <tr><td><code>/routines</code></td><td>RoutinesView</td><td>Auth</td></tr>
+        <tr><td><code>/attendance</code></td><td>AttendanceView</td><td>Auth, gym</td></tr>
+        <tr><td><code>/lockers</code></td><td>LockersView</td><td>Auth, gym</td></tr>
+        <tr><td><code>/progress</code></td><td>ProgressView</td><td>Auth</td></tr>
+        <tr><td><code>/posts</code></td><td>PostsView</td><td>Auth, gym</td></tr>
+        <tr><td><code>/qr</code></td><td>QrView</td><td>Auth, gym, admin</td></tr>
+      </table>
+      <p>El store <code>auth.store.js</code> guarda usuario y token; el router comprueba <code>requiresAuth</code>, <code>requiresGym</code> y <code>roles</code> antes de entrar a cada ruta.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- EJEMPLOS API -->
+    <section id="ejemplos-api">
+      <h2>Ejemplos de uso de la API</h2>
+
+      <h3>1. Login (fetch)</h3>
+      <pre><span class="token-k">const</span> res = <span class="token-k">await</span> fetch(<span class="token-s">'http://localhost:3000/api/auth/login'</span>, {
+  method: <span class="token-s">'POST'</span>,
+  headers: { <span class="token-n">'Content-Type'</span>: <span class="token-s">'application/json'</span> },
+  body: JSON.stringify({ <span class="token-n">email</span>: <span class="token-s">'admin@gym.com'</span>, <span class="token-n">password</span>: <span class="token-s">'secret123'</span> })
+})
+<span class="token-k">const</span> data = <span class="token-k">await</span> res.json()
+<span class="token-c">// Guardar token para siguientes peticiones</span>
+localStorage.setItem(<span class="token-s">'token'</span>, data.token)</pre>
+
+      <h3>2. Registrar gym + admin (público)</h3>
+      <pre><span class="token-k">const</span> res = <span class="token-k">await</span> fetch(<span class="token-s">'http://localhost:3000/api/auth/register'</span>, {
+  method: <span class="token-s">'POST'</span>,
+  headers: { <span class="token-n">'Content-Type'</span>: <span class="token-s">'application/json'</span> },
+  body: JSON.stringify({
+    name: <span class="token-s">'Admin'</span>,
+    email: <span class="token-s">'admin@gym.com'</span>,
+    password: <span class="token-s">'pass123'</span>,
+    gym: { name: <span class="token-s">'Iron Gym'</span>, address: <span class="token-s">'Calle 1'</span>, phone: <span class="token-s">'600 111 2222'</span> }
+  })
+})
+<span class="token-k">const</span> { user, gym } = <span class="token-k">await</span> res.json()</pre>
+
+      <h3>3. Obtener clientes del gym (con token)</h3>
+      <pre><span class="token-k">const</span> token = localStorage.getItem(<span class="token-s">'token'</span>)
+<span class="token-k">const</span> res = <span class="token-k">await</span> fetch(<span class="token-s">`http://localhost:3000/api/clients/${gymId}`</span>, {
+  headers: { <span class="token-n">'Authorization'</span>: <span class="token-s">`Bearer ${token}`</span> }
+})
+<span class="token-k">const</span> clientes = <span class="token-k">await</span> res.json()</pre>
+
+      <h3>4. Asignar membresía a cliente</h3>
+      <pre><span class="token-k">await</span> fetch(<span class="token-s">'http://localhost:3000/api/memberships/assign'</span>, {
+  method: <span class="token-s">'POST'</span>,
+  headers: {
+    <span class="token-n">'Content-Type'</span>: <span class="token-s">'application/json'</span>,
+    <span class="token-n">'Authorization'</span>: <span class="token-s">`Bearer ${token}`</span>
+  },
+  body: JSON.stringify({ client_id: clientId, membership_id: membershipId })
+})</pre>
+
+      <h3>5. Check-in de asistencia</h3>
+      <pre><span class="token-k">await</span> fetch(<span class="token-s">'http://localhost:3000/api/attendance/check-in'</span>, {
+  method: <span class="token-s">'POST'</span>,
+  headers: {
+    <span class="token-n">'Content-Type'</span>: <span class="token-s">'application/json'</span>,
+    <span class="token-n">'Authorization'</span>: <span class="token-s">`Bearer ${token}`</span>
+  },
+  body: JSON.stringify({ client_id: clientId })
+})</pre>
+
+      <h3>6. Crear rutina con ejercicios</h3>
+      <pre><span class="token-k">const</span> res = <span class="token-k">await</span> fetch(<span class="token-s">'http://localhost:3000/api/routines'</span>, {
+  method: <span class="token-s">'POST'</span>,
+  headers: {
+    <span class="token-n">'Content-Type'</span>: <span class="token-s">'application/json'</span>,
+    <span class="token-n">'Authorization'</span>: <span class="token-s">`Bearer ${token}`</span>
+  },
+  body: JSON.stringify({
+    name: <span class="token-s">'Rutina fuerza'</span>,
+    description: <span class="token-s">'3 días por semana'</span>,
+    exercises: [
+      { exercise_id: exerciseUuid1, sets: 3, reps: 10, suggested_weight: 60 },
+      { exercise_id: exerciseUuid2, sets: 3, reps: 12 }
+    ]
+  })
+})
+<span class="token-k">const</span> rutina = <span class="token-k">await</span> res.json()</pre>
+
+      <h3>7. Registrar progreso</h3>
+      <pre><span class="token-k">await</span> fetch(<span class="token-s">'http://localhost:3000/api/progress'</span>, {
+  method: <span class="token-s">'POST'</span>,
+  headers: {
+    <span class="token-n">'Content-Type'</span>: <span class="token-s">'application/json'</span>,
+    <span class="token-n">'Authorization'</span>: <span class="token-s">`Bearer ${token}`</span>
+  },
+  body: JSON.stringify({
+    client_id: clientId,
+    exercise_id: exerciseId,
+    weight: 70,
+    reps: 8
+  })
+})</pre>
+
+      <h3>8. Obtener datos para QR de registro (público)</h3>
+      <pre><span class="token-k">const</span> res = <span class="token-k">await</span> fetch(<span class="token-s">`http://localhost:3000/api/qr/register/${gymId}`</span>)
+<span class="token-k">const</span> { gym_id, gym_name, register_url } = <span class="token-k">await</span> res.json()
+<span class="token-c">// register_url = frontend + ?gym_id=...</span></pre>
+    </section>
+
+    <hr class="divider" />
+
+    <section id="errores">
+      <h2>Códigos de error</h2>
+      <table>
+        <tr><th>Código</th><th>Significado</th><th>Cuándo</th></tr>
+        <tr><td><code>400</code></td><td>Bad Request</td><td>Campos requeridos faltantes o formato inválido</td></tr>
+        <tr><td><code>401</code></td><td>Unauthorized</td><td>Sin token o token inválido/expirado</td></tr>
+        <tr><td><code>403</code></td><td>Forbidden</td><td>Rol insuficiente o recurso de otro gym</td></tr>
+        <tr><td><code>404</code></td><td>Not Found</td><td>Recurso no existe</td></tr>
+        <tr><td><code>409</code></td><td>Conflict</td><td>Email/gym duplicado, casillero ocupado, etc.</td></tr>
+        <tr><td><code>500</code></td><td>Server Error</td><td>Error interno (mensaje en <code>error</code> o <code>message</code>)</td></tr>
+      </table>
+      <p>Las respuestas de error suelen ser JSON con <code>message</code> o <code>error</code>.</p>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

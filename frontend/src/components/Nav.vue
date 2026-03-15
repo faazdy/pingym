@@ -234,57 +234,15 @@ nav li:last-child {
   background: rgba(229, 72, 77, 0.08);
   box-shadow: inset 0 0 0 1px rgba(229, 72, 77, 0.15);
 }
-/* ── Responsive Design ── */
+
+
+/* En móvil, ocultamos etiquetas de la barra principal pero no del menú burger */
 @media (max-width: 768px) {
-  .glass-header {
-    width: 95%; /* Evita que choque con los bordes de la pantalla */
-    bottom: 16px; /* Un poco más abajo en móviles para ganar espacio */
+  .glass-nav .nav-label {
+    display: none;
   }
-
-  .glass-nav {
-    width: 100%;
-    padding: 0 4px;
-  }
-
-  nav ul {
-    /* Permite scroll horizontal si hay muchos iconos */
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
-    scrollbar-width: none; /* Oculta la barra en Firefox */
-    padding: 0 4px;
-  }
-
-  /* Oculta la barra de scroll en Chrome/Safari/Edge */
-  nav ul::-webkit-scrollbar {
-    display: none; 
-  }
-
-  /* Ocultar los textos en móvil para ahorrar espacio */
-  .nav-label {
-    display: none; 
-  }
-
-  /* Ajustar los botones para que sean más fáciles de tocar */
-  nav a,
-  .nav-logout {
-    padding: 10px 12px;
-    gap: 0;
-  }
-
-  /* Hacer los iconos un poco más grandes ya que no hay texto */
-  .nav-icon {
-    font-size: 18px; 
-  }
-
-  /* Ajustar los separadores laterales */
-  .nav-logo-item {
-    padding-right: 6px;
-    margin-right: 2px;
-  }
-
-  nav li:last-child {
-    padding-left: 6px;
-    margin-left: 2px;
+  .burger-menu-content .nav-label {
+    display: inline;
   }
 }
 </style>

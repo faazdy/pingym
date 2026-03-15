@@ -235,7 +235,7 @@
       <template v-else-if="auth.isIndependiente">
         <header class="topbar">
           <div>
-            <h1 class="topbar__title">GymSaaS</h1>
+            <h1 class="topbar__title">PinGym</h1>
             <p class="topbar__sub">Hola, {{ auth.user?.name }}</p>
           </div>
         </header>
@@ -243,8 +243,8 @@
         <div class="dashboard__body">
           <div class="widget widget--cta">
             <div>
-              <h3 class="widget__cta-title">Controlá tu entrenamiento</h3>
-              <p class="widget__cta-sub">Creá rutinas y registrá tu progreso sin necesidad de un gym.</p>
+              <h3 class="widget__cta-title">Controla tu entrenamiento</h3>
+              <p class="widget__cta-sub">Crea rutinas y registra tu progreso sin necesidad de un gym.</p>
             </div>
             <router-link class="cta-btn" to="/routines">Mis rutinas</router-link>
           </div>
@@ -339,7 +339,7 @@ onMounted(() => {
 
 <style scoped>
 /* ── Shell ── */
-.dashboard { display: flex; min-height: 100vh; font-family: var(--font-sans); background: #f4f4f2; }
+.dashboard { display: flex; min-height: 100vh; font-family: var(--font-sans); background: rgb(250, 250, 250); }
 .dashboard__main { flex: 1; display: flex; flex-direction: column; padding-bottom: 80px; }
 
 .dash-center{
