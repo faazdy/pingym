@@ -1,4 +1,4 @@
-# Documento de Lógica de Negocio — GymSaaS
+# Documento de Lógica de Negocio — PinGym
 
 **Versión:** 1.0  
 **Última actualización:** 2025
@@ -7,7 +7,7 @@
 
 ## 1. Visión y objetivo del producto
 
-**GymSaaS** es una aplicación de gestión para gimnasios (Gym as a Service). Permite a un gimnasio administrar sus instalaciones, clientes, planes de membresía, rutinas de entrenamiento, asistencia, casilleros y comunicaciones, y permite a los clientes registrarse (incluso mediante QR), ver sus rutinas, progreso y asistencia.
+**PinGym** es una aplicación de gestión para gimnasios (Gym as a Service). Permite a un gimnasio administrar sus instalaciones, clientes, planes de membresía, rutinas de entrenamiento, asistencia, casilleros y comunicaciones, y permite a los clientes registrarse (incluso mediante QR), ver sus rutinas, progreso y asistencia.
 
 **Objetivos de negocio:**
 

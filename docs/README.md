@@ -1,4 +1,4 @@
-# PinGym - GymSaaS — Documentación completa
+# PinGym — Documentación completa
 
 **v1.0.0 · Backend + Frontend**
 
