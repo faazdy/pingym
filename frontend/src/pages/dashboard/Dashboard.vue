@@ -23,7 +23,7 @@
             </div>
             <div class="widget widget--cta">
               <div>
-                <h3 class="widget__cta-title">Registrá un nuevo cliente</h3>
+                <h3 class="widget__cta-title">Registra un nuevo cliente</h3>
                 <p class="widget__cta-sub">Agregá clientes y asignales membresía y rutina al instante.</p>
               </div>
               <router-link class="cta-btn" to="/clients">+ Nuevo cliente</router-link>
