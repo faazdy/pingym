@@ -1,7 +1,7 @@
 # Documento de Lógica de Negocio — PinGym
 
 **Versión:** 1.0  
-**Última actualización:** 2025
+**Última actualización:** 2026
 
 ---
 
