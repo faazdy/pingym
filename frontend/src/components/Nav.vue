@@ -1,10 +1,20 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth.store'
 
 const router = useRouter()
 const auth = useAuthStore()
+
+const menuOpen = ref(false)
+
+const openMenu = () => {
+  menuOpen.value = true
+}
+
+const closeMenu = () => {
+  menuOpen.value = false
+}
 
 const navItems = computed(() => {
   const items = [
@@ -14,11 +24,12 @@ const navItems = computed(() => {
     { to: '/memberships', icon: '▣', label: 'Membresías', show: () => auth.isAdmin },
     { to: '/routines', icon: '◈', label: 'Rutinas' },
     { to: '/attendance', icon: '✓', label: 'Asistencia', show: () => auth.hasGym },
-    { to: '/lockers', icon: '▢', label: 'Casilleros' },
+    { to: '/lockers', icon: '▢', label: 'Casilleros', show: () => auth.hasGym },
     { to: '/progress', icon: '↗', label: 'Progreso' },
     { to: '/posts', icon: '◇', label: 'Noticias', show: () => auth.hasGym },
     { to: '/qr', icon: '⬚', label: 'QR', show: () => auth.isAdmin },
   ]
+
   return items.filter((item) => (item.show ? item.show() : true))
 })
 
@@ -29,7 +40,9 @@ const logout = () => {
 </script>
 
 <template>
+  <!-- NAVBAR PRINCIPAL -->
   <header class="glass-header">
+
     <div class="liquidGlass-wrapper glass-nav">
       <div class="liquidGlass-effect"></div>
       <div class="liquidGlass-tint"></div>
@@ -37,32 +50,68 @@ const logout = () => {
 
       <nav class="liquidGlass-text">
         <ul>
-          <!-- Logo -->
+
           <li class="nav-logo-item">
             <RouterLink to="/dashboard">
               <img src="/logo.png" alt="Logo" class="nav-logo" />
             </RouterLink>
           </li>
 
-          <li v-for="item in navItems" :key="item.to">
+          <li v-for="item in navItems" :key="item.to" class="menu-phill-tags">
             <RouterLink :to="item.to" active-class="nav-link--active">
               <span class="nav-icon">{{ item.icon }}</span>
               <span class="nav-label">{{ item.label }}</span>
             </RouterLink>
           </li>
 
-          <li>
+          <li class="responsive-menu">
+            <button class="burger-btn" @click="openMenu">
+              ☰ MENU
+            </button>
+          </li>
+
+          <li class="menu-phill-tags">
             <button class="nav-logout" @click="logout">
               <span class="nav-icon">⎋</span>
               <span class="nav-label">Salir</span>
             </button>
           </li>
+
         </ul>
       </nav>
     </div>
   </header>
 
-  <svg style="display: none">
+  <!-- MENÚ RESPONSIVE -->
+  <aside :class="menuOpen ? 'asidebar-menu open' : 'asidebar-menu'">
+    <nav>
+      <div class="header-nav">
+        <h1>Menu</h1>
+        <button @click="closeMenu">X</button>
+      </div>
+      <h3>Navegación</h3>
+      <ul class="nav-tags-container">
+        <li v-for="item in navItems">
+          <RouterLink :to="item.to" active-class="nav-link--active">
+            <span class="nav-label">{{ item.label }}</span>
+          </RouterLink>
+        </li>
+      </ul>
+      <div class="nav-bottom">
+        <h3>Cuenta</h3>
+        <br>
+        <ul class="nav-tags-container">
+          <li>
+            <button class="nav-logout" @click="logout">
+              <span class="nav-label">Salir</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </aside>
+
+  <svg style="display:none">
     <filter id="glass-distortion">
       <feTurbulence type="fractalNoise" baseFrequency="0.01 0.01" numOctaves="1" seed="5" />
       <feGaussianBlur stdDeviation="3" result="softMap" />
@@ -72,7 +121,9 @@ const logout = () => {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Geist:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap');
+
+/* NAVBAR */
 
 .glass-header {
   position: fixed;
@@ -106,20 +157,17 @@ const logout = () => {
   inset: 0;
   backdrop-filter: blur(16px) saturate(180%);
   filter: url(#glass-distortion);
-  z-index: 0;
 }
 
 .liquidGlass-tint {
   position: absolute;
   inset: 0;
   background: rgba(255, 255, 255, 0.5);
-  z-index: 1;
 }
 
 .liquidGlass-shine {
   position: absolute;
   inset: 0;
-  z-index: 2;
   box-shadow:
     inset 1px 1px 1px rgba(255, 255, 255, 0.8),
     inset -1px -1px 1px rgba(255, 255, 255, 0.3);
@@ -128,121 +176,201 @@ const logout = () => {
 .liquidGlass-text {
   position: relative;
   z-index: 3;
-  height: 100%;
   display: flex;
   align-items: center;
 }
 
-nav ul {
+.liquidGlass-text ul {
   display: flex;
   gap: 4px;
   list-style: none;
   padding: 0 6px;
   margin: 0;
   align-items: center;
-  height: 100%;
-}
-
-nav li {
-  display: flex;
-  align-items: center;
-}
-
-/* ── Logo ── */
-.nav-logo-item {
-  margin-right: 4px;
-  padding-right: 8px;
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.nav-logo-item a {
-  padding: 4px 6px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
 }
 
 .nav-logo {
   height: 28px;
-  width: auto;
-  display: block;
-  object-fit: contain;
 }
 
-/* ── Links ── */
-nav a,
+/* LINKS */
+
+.liquidGlass-text a,
 .nav-logout {
   display: flex;
   align-items: center;
   gap: 6px;
   font-family: 'Geist', sans-serif;
   font-size: 13px;
-  font-weight: 500;
   color: rgba(0, 0, 0, 0.55);
   text-decoration: none;
   padding: 7px 14px;
   border-radius: 999px;
-  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-  white-space: nowrap;
-  letter-spacing: -0.01em;
   border: none;
   background: none;
   cursor: pointer;
+  transition: .2s ease;
 }
 
-nav a:hover,
-.nav-logout:hover {
+.liquidGlass-text a:hover {
   color: #111;
   background: rgba(255, 255, 255, 0.65);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.8),
-    0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .nav-link--active {
   color: #111 !important;
   background: rgba(255, 255, 255, 0.7) !important;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.9),
-    0 2px 8px rgba(0, 0, 0, 0.08) !important;
 }
 
-.nav-icon {
-  font-size: 14px;
-  line-height: 1;
-  opacity: 0.7;
+/* BURGER */
+
+.burger-btn {
+  font-size: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px 10px;
 }
 
-.nav-link--active .nav-icon,
-nav a:hover .nav-icon,
-.nav-logout:hover .nav-icon {
-  opacity: 1;
+/* SIDEBAR OVERLAY */
+.responsive-menu{
+  display: none;
 }
 
-nav li:last-child {
-  margin-left: 4px;
-  padding-left: 8px;
-  border-left: 1px solid rgba(0, 0, 0, 0.1);
+.asidebar-menu {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 2000;
+  justify-content: flex-end;
 }
 
-.nav-logout {
-  color: rgba(0, 0, 0, 0.4);
+.open {
+  display: flex;
 }
 
-.nav-logout:hover {
-  color: #e5484d;
-  background: rgba(229, 72, 77, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(229, 72, 77, 0.15);
+.asidebar-menu .nav-link--active {
+  background-color: #ffb8032a !important;
+  color: #ff9203 !important;
 }
 
+/* SIDEBAR PANEL */
 
-/* En móvil, ocultamos etiquetas de la barra principal pero no del menú burger */
-@media (max-width: 768px) {
-  .glass-nav .nav-label {
+.asidebar-menu nav {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  overflow: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 30px;
+  border-radius: 30px 0 0 30px;
+  animation: slideIn .25s ease;
+}
+
+/* HEADER SIDEBAR */
+
+.header-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  padding-bottom: 1.2em;
+}
+
+.header-nav button {
+  padding: 7px 15px;
+  font-size: 15px;
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.28);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* TITLES */
+
+.asidebar-menu h3 {
+  font-size: 18px;
+  font-weight: 500;
+  color: rgb(255, 187, 61);
+}
+
+/* LINKS SIDEBAR */
+
+.nav-tags-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nav-tags-container li {
+  list-style: none;
+  font-size: 18px;
+}
+
+.nav-tags-container a {
+  padding: 10px 15px;
+  display: block;
+  text-decoration: none;
+  color: black;
+  border-radius: 20px;
+  transition: .2s ease;
+}
+
+.nav-tags-container a:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* BOTTOM */
+
+.nav-bottom {
+  margin-top: auto;
+}
+
+.nav-bottom .nav-logout{
+  display: block;
+  border: 1px solid rgba(255, 0, 0, 0.274);
+  color: rgba(230, 0, 0, 0.541);
+  width: 100%;
+  text-align: center;
+}
+
+.nav-logout:hover{
+  border: 1px solid rgba(255, 0, 0, 0.274);
+  background: rgba(230, 0, 0, 0.541);
+  color: white;
+}
+
+/* ANIMATION */
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* RESPONSIVE */
+
+@media (max-width:1300px) {
+  .responsive-menu{
+    display: block;
+  }
+
+  .menu-phill-tags{
     display: none;
   }
-  .burger-menu-content .nav-label {
-    display: inline;
+
+  .liquidGlass-text .nav-label {
+    display: none;
   }
+
 }
 </style>

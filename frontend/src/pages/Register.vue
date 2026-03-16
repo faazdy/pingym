@@ -59,10 +59,12 @@ async function handleRegister() {
   <div class="auth">
     <div class="auth__card">
       <div class="auth__header">
-        <span class="auth__tag">PinGym</span>
+        <div class="logo">
+          <img src="/logo.png" alt="logo">
+        </div>
         <h1 class="auth__title">Crear cuenta</h1>
         <p class="auth__sub">
-          {{ gymFromQr ? `Registro en ${gymFromQr.name}` : 'Completá tus datos para registrarte' }}
+          {{ gymFromQr ? `Registro en ${gymFromQr.name}` : 'Completa tus datos para registrarte' }}
         </p>
       </div>
 
@@ -143,7 +145,7 @@ async function handleRegister() {
       </form>
 
       <p class="auth__footer">
-        ¿Ya tenés cuenta?
+        ¿Ya tienes una cuenta?
         <router-link class="auth__link" to="/login">Inicia sesión</router-link>
       </p>
     </div>
@@ -156,12 +158,20 @@ async function handleRegister() {
 
 .auth {
   min-height: 100vh;
-  background: #f9f9f9;
+  background-image: url('../assets/images/backgrounds/bgauth.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Geist', sans-serif;
   padding: 24px;
+}
+.auth .logo img{
+  width: auto;
+  height: 60px;
+  object-fit: contain;
 }
 
 .auth__card {

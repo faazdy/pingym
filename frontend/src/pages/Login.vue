@@ -2,7 +2,9 @@
   <div class="auth">
     <div class="auth__card">
       <div class="auth__header">
-        <span class="auth__tag">PinGym</span>
+        <div class="logo">
+          <img src="/logo.png" alt="logo">
+        </div>
         <h1 class="auth__title">Bienvenido</h1>
         <p class="auth__sub">Inicia sesión en tu cuenta</p>
       </div>
@@ -63,12 +65,21 @@ async function handleLogin() {
 
 .auth {
   min-height: 100vh;
-  background: #f9f9f9;
+  background-image: url('../assets/images/backgrounds/bgauth.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Geist', sans-serif;
   padding: 24px;
+}
+
+.auth .logo img{
+  width: auto;
+  height: 60px;
+  object-fit: contain;
 }
 
 .auth__card {
