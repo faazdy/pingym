@@ -32,12 +32,14 @@
       </p>
     </div>
   </div>
+  <AppFooter />
 </template>
 
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth.store";
+import AppFooter from "../components/Footer.vue";
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -64,7 +66,7 @@ async function handleLogin() {
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 .auth {
-  min-height: 100vh;
+  min-height: 95dvh;
   background-image: url('../assets/images/backgrounds/bgauth.png');
   background-repeat: no-repeat;
   background-size: cover;

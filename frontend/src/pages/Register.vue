@@ -3,12 +3,13 @@ import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "../stores/auth.store";
 import api from "../services/api";
+import AppFooter from "../components/Footer.vue";
 
 const auth = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 
-const step = ref(1); // 1: datos personales, 2: ¿tenés gym?, 3: datos del gym
+const step = ref(1); // 1: datos personales, 2: ¿tienes gym?, 3: datos del gym
 const hasGym = ref(null);
 const gymFromQr = ref(null);
 
@@ -150,6 +151,7 @@ async function handleRegister() {
       </p>
     </div>
   </div>
+  <AppFooter />
 </template>
 
 <style scoped>
@@ -157,7 +159,7 @@ async function handleRegister() {
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 .auth {
-  min-height: 100vh;
+  min-height: 95dvh;
   background-image: url('../assets/images/backgrounds/bgauth.png');
   background-repeat: no-repeat;
   background-size: cover;
