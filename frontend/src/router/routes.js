@@ -55,6 +55,10 @@ const routes = [
     component: () => import("../pages/dashboard/QrView.vue"),
     meta: { requiresAuth: true, requiresGym: true, roles: ["admin"] },
   },
+  {
+    path: "/:pathMatch(.*)*",
+    redirect: "/"
+  }
 ];
 
 const router = createRouter({
