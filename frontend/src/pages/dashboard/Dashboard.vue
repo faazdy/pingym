@@ -8,7 +8,7 @@
         <header class="topbar">
           <div>
             <h1 class="topbar__title">{{ auth.user?.gym_name || "GymSaaS" }}</h1>
-            <p class="topbar__sub">Bienvenido, {{ auth.user?.name }}</p>
+            <p class="topbar__sub">Hola, <span class="info-important">{{ auth.user?.name }}</span></p>
           </div>
         </header>
 
@@ -145,7 +145,7 @@
         <header class="topbar">
           <div>
             <h1 class="topbar__title">{{ auth.user?.gym_name || "GymSaaS" }}</h1>
-            <p class="topbar__sub">Hola, {{ auth.user?.name }}</p>
+            <p class="topbar__sub">Hola, <span class="info-important">{{ auth.user?.name }}</span></p>
           </div>
         </header>
 
@@ -254,10 +254,10 @@
               <p class="widget__big-number widget__big-number--muted">—</p>
               <p class="widget__hint">Sin membresía activa</p>
             </div>
-            <div class="widget widget--cta">
+            <div class="widget widget--cta w-bg-client1">
               <div>
                 <h3 class="widget__cta-title">Tu rutina te espera</h3>
-                <p class="widget__cta-sub">Revisá los ejercicios asignados por tu entrenador.</p>
+                <p class="widget__cta-sub">Revisa los ejercicios asignados por tu entrenador.</p>
               </div>
               <router-link class="cta-btn" to="/routines">Ver rutina</router-link>
             </div>
@@ -327,12 +327,12 @@
         <header class="topbar">
           <div>
             <h1 class="topbar__title">PinGym</h1>
-            <p class="topbar__sub">Hola, {{ auth.user?.name }}</p>
+            <p class="topbar__sub">Hola, <span class="info-important">{{ auth.user?.name }}</span></p>
           </div>
         </header>
 
         <div class="dashboard__body">
-          <div class="widget widget--cta">
+          <div class="widget widget--cta w-bg-client2">
             <div>
               <h3 class="widget__cta-title">Controla tu entrenamiento</h3>
               <p class="widget__cta-sub">Crea rutinas y registra tu progreso sin necesidad de un gym.</p>
@@ -520,6 +520,18 @@ onMounted(() => {
   background-repeat: no-repeat !important;
 }
 
+.w-bg-client1{
+  background-image: url('../../assets/images/content/widgets/clientw1.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+.w-bg-client2{
+  background-image: url('../../assets/images/content/widgets/clientw2.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
 
 .widget__label {
   font-family: var(--font-mono);
