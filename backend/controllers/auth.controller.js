@@ -3,8 +3,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 // ─── Register público ───────────────────────────────────────────
-// Caso 1: Client independiente (sin gym)
-// Caso 2: Admin con gym nuevo
+// Caso 1: Cliente independiente (sin gym en el body)
+// Caso 2: Cliente vinculado a gym existente (gym = UUID string, ej. registro por QR)
 export const register = async (req, res) => {
   try {
     const { name, email, password, gym } = req.body;
@@ -38,7 +38,13 @@ export const register = async (req, res) => {
       return res.status(201).json(user);
     }
 
-    // Caso 2: gym_id (string) → registro desde QR, cliente de un gym existente
+    if (gym != null && typeof gym !== "string") {
+      return res.status(400).json({
+        message: "Formato inválido: para vincularte a un gym envía el id del gym como texto (UUID)",
+      });
+    }
+
+    // Caso 2: gym (string UUID) → registro desde QR, cliente de un gym existente
     if (typeof gym === "string") {
       const gymExists = await sql`SELECT id FROM gyms WHERE id = ${gym}`;
       if (gymExists.length === 0) {
@@ -56,41 +62,22 @@ export const register = async (req, res) => {
       `;
       return res.status(201).json({ ...user, profile: true });
     }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-    // Caso 3: con gym (objeto) → crear gym + admin
-    const { name: gymName, address, phone } = gym;
-
-    if (!gymName) {
-      return res
-        .status(400)
-        .json({ message: "El nombre del gym es requerido" });
-    }
-
-    const existingGym = await sql`SELECT id FROM gyms WHERE name = ${gymName}`;
-    if (existingGym.length > 0) {
-      return res
-        .status(409)
-        .json({ message: "Ya existe un gym con ese nombre" });
-    }
-
-    // Crear gym
-    const newGym = await sql`
-      INSERT INTO gyms (name, address, phone)
-      VALUES (${gymName}, ${address || null}, ${phone || null})
-      RETURNING id, name
+/** Datos mínimos del gym para pantalla de registro por QR (público). */
+export const getGymPublicInfo = async (req, res) => {
+  try {
+    const { gym_id } = req.params;
+    const gym = await sql`
+      SELECT id, name FROM gyms WHERE id = ${gym_id}
     `;
-
-    // Crear admin vinculado al gym
-    const newUser = await sql`
-      INSERT INTO users (gym_id, name, email, password, role)
-      VALUES (${newGym[0].id}, ${name}, ${email}, ${hashedPassword}, 'admin')
-      RETURNING id, name, email, role, gym_id
-    `;
-
-    res.status(201).json({
-      user: newUser[0],
-      gym: newGym[0],
-    });
+    if (gym.length === 0) {
+      return res.status(404).json({ message: "Gym no encontrado" });
+    }
+    res.json(gym[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

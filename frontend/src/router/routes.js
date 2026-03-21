@@ -6,6 +6,11 @@ const routes = [
   { path: "/login", component: () => import("../pages/Login.vue"), meta: { guest: true } },
   { path: "/register", component: () => import("../pages/Register.vue"), meta: { guest: true } },
   {
+    path: "/superadmin",
+    component: () => import("../pages/SuperAdminView.vue"),
+    meta: { requiresAuth: true, superadminOnly: true },
+  },
+  {
     path: "/dashboard",
     component: () => import("../pages/dashboard/Dashboard.vue"),
     meta: { requiresAuth: true },
@@ -69,7 +74,13 @@ const router = createRouter({
 router.beforeEach((to) => {
   const auth = useAuthStore();
   if (to.meta.requiresAuth && !auth.isAuthenticated) return "/login";
-  if (to.meta.guest && auth.isAuthenticated) return "/dashboard";
+  if (to.meta.guest && auth.isAuthenticated) {
+    return auth.user?.role === "superadmin" ? "/superadmin" : "/dashboard";
+  }
+  if (to.meta.superadminOnly && auth.user?.role !== "superadmin") return "/dashboard";
+  if (to.meta.requiresAuth && to.path === "/dashboard" && auth.user?.role === "superadmin") {
+    return "/superadmin";
+  }
   if (to.meta.requiresGym && !auth.hasGym) return "/dashboard";
   if (to.meta.roles?.length && !to.meta.roles.includes(auth.user?.role)) return "/dashboard";
 });

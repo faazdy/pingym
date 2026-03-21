@@ -52,7 +52,7 @@ async function handleLogin() {
   loading.value = true;
   try {
     await auth.login(form.value.email, form.value.password);
-    router.push("/dashboard");
+    router.push(auth.user?.role === "superadmin" ? "/superadmin" : "/dashboard");
   } catch (err) {
     error.value = err.response?.data?.message || "Credenciales incorrectas";
   } finally {

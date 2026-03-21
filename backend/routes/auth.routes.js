@@ -4,17 +4,19 @@ import {
   register,
   registerUser,
   login,
+  getGymPublicInfo,
   deleteGym,
   updateGym,
   deleteUser,
-  updateUser
+  updateUser,
 } from "../controllers/auth.controller.js";
 
 const router = Router();
 
 // ─── Públicas ────────────────────────────────────────────────────
-router.post("/register", register);       
+router.post("/register", register);
 router.post("/login", login);
+router.get("/gym-info/:gym_id", getGymPublicInfo);
 
 // ─── Solo admins (desde el dashboard) ───────────────────────────
 router.post("/register-user", verifyToken, isAdmin, registerUser);  // crear trainer o client

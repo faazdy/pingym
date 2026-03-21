@@ -11,8 +11,8 @@ import progressRoutes from "./routes/progress.routes.js";
 import postsRoutes from "./routes/posts.routes.js";
 import exercisesRoutes from "./routes/exercises.routes.js";
 import qrRoutes from "./routes/qr.routes.js";
-import trainersRoutes from "./routes/trainers.routes.js"
-
+import trainersRoutes from "./routes/trainers.routes.js";
+import superadminRoutes from "./routes/superadmin.routes.js";
 
 const app = express();
 
@@ -30,5 +30,6 @@ app.use("/api/posts", postsRoutes);
 app.use("/api/exercises", exercisesRoutes);
 app.use("/api/qr", qrRoutes);
 app.use("/api/trainers", trainersRoutes);
+app.use("/api/superadmin", superadminRoutes);
 
 export default app;
