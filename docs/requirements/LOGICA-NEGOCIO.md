@@ -86,7 +86,13 @@ Las relaciones y cascadas (por ejemplo borrado de gym → usuarios y perfiles) e
 
 ### 4.5 Rutinas y ejercicios
 
-- **Ejercicios:** Catálogo **global** (no por gym). Cualquier usuario autenticado puede listarlos. Solo **admin** (con gym) puede crear ejercicios nuevos.
+- **Ejercicios (modelo de propiedad):** Cada ejercicio pertenece a un **creador** (created_by) y opcionalmente a un **gym** (gym_id). Reglas de visibilidad:
+  - Admin / trainer de gym → ejercicios del gym + los creados por él.
+  - Cliente vinculado a gym → ejercicios del gym + los creados por él.
+  - Cliente independiente → solo los ejercicios creados por él mismo.
+- **Crear ejercicio:** Cualquier usuario autenticado. Se guarda created_by = user.id y gym_id = user.gym_id (null si independiente).
+- **Editar ejercicio:** Solo el creador, o admin/trainer del mismo gym dueño del ejercicio.
+- **Eliminar ejercicio:** Solo el creador, o admin del mismo gym dueño del ejercicio.
 - **Rutinas:** Pueden ser de un gym (`gym_id` + opcional `trainer_id`) o “independientes” (sin gym, por ejemplo trainer/cliente sin sede). Quien crea la rutina puede enviar `exercises` (array de `exercise_id`, sets, reps, suggested_weight) para crearla ya con ejercicios.
 - **Asignar rutina a cliente:** Solo **admin o trainer** del mismo gym. No se puede asignar la misma rutina dos veces al mismo cliente (evitar duplicados).
 - **Ver rutinas:** Un cliente ve “mis rutinas” (asignadas a él o creadas por él si es independiente). Admin/trainer ven rutinas del gym y pueden ver rutinas asignadas a un cliente (mismo gym o propio cliente).

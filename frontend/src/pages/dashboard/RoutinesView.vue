@@ -7,31 +7,85 @@
         <div class="page__header">
           <div class="page__header-left">
             <span class="page__tag">Entrenamiento</span>
-            <h1 class="page__title">{{ auth.hasGym && (auth.isAdmin || auth.isTrainer) ? 'Rutinas' : 'Mis rutinas' }}</h1>
+            <h1 class="page__title">
+              {{ auth.isAdmin || auth.isTrainer ? 'Rutinas' : 'Mis rutinas' }}
+            </h1>
           </div>
-          <div class="btns-actions" v-if="auth.isAdmin || auth.isTrainer || auth.isIndependiente">
-            <button v-if="auth.hasGym && (auth.isAdmin || auth.isTrainer)" class="btn secundary" @click="showAssignModal = true">Asignar a cliente</button>
+          <div class="btns-actions">
+            <button class="btn secundary" @click="showCreateExerciseModal = true">+ Ejercicio</button>
+            <button v-if="auth.hasGym && (auth.isAdmin || auth.isTrainer)" class="btn secundary" @click="showAssignModal = true">Asignar</button>
             <button class="btn primary" @click="showModal = true">+ Nueva rutina</button>
           </div>
         </div>
 
-        <div class="cards-list" v-if="!loading && routines.length > 0">
-          <div v-for="r in routines" :key="r.id" class="card-row">
-            <div class="routine-card__info">
-              <p class="routine-card__name">{{ r.name }}</p>
-              <p class="routine-card__desc">{{ r.description || "Sin descripción" }}</p>
-              <span class="routine-card__trainer">{{ r.trainer_name || "Sin entrenador" }}</span>
-            </div>
-            <div class="routine-card__actions">
-              <button class="action-btn" @click="openExercises(r)">Ver ejercicios</button>
-              <button v-if="auth.isAdmin || auth.isTrainer" class="action-btn" @click="openAddExercise(r)">+ Ejercicio</button>
-              <button v-if="auth.hasGym && (auth.isAdmin || auth.isTrainer)" class="action-btn" @click="assignRoutine(r)">Asignar</button>
+        <!-- Admin / Trainer: lista simple -->
+        <template v-if="auth.isAdmin || auth.isTrainer">
+          <div class="cards-list" v-if="!loading && routines.length > 0">
+            <div v-for="r in routines" :key="r.id" class="card-row">
+              <div class="routine-card__info">
+                <p class="routine-card__name">{{ r.name }}</p>
+                <p class="routine-card__desc">{{ r.description || "Sin descripción" }}</p>
+                <span class="routine-card__trainer">{{ r.trainer_name || "Sin entrenador" }}</span>
+              </div>
+              <div class="routine-card__actions">
+                <button class="action-btn" @click="openExercises(r)">Ver</button>
+                <button class="action-btn" @click="openAddExercise(r)">+ Ejercicio</button>
+                <button class="action-btn" @click="assignRoutine(r)">Asignar</button>
+                <button class="action-btn action-btn--danger" @click="handleDeleteRoutine(r)">Eliminar</button>
+              </div>
             </div>
           </div>
-        </div>
+          <div v-else-if="loading" class="empty">Cargando...</div>
+          <div v-else class="empty">No hay rutinas. Crea una para empezar.</div>
+        </template>
 
-        <div v-else-if="loading" class="empty">Cargando...</div>
-        <div v-else class="empty">No hay rutinas. Crea una y asígnala a clientes.</div>
+        <!-- Cliente / Independiente: dos secciones -->
+        <template v-else>
+          <template v-if="loading">
+            <div class="empty">Cargando...</div>
+          </template>
+          <template v-else>
+
+            <!-- Rutinas asignadas por el trainer (solo clientes de gym) -->
+            <div class="section" v-if="auth.isClient && auth.hasGym">
+              <p class="section__title">Asignadas por tu entrenador</p>
+              <div class="cards-list" v-if="assignedRoutines.length > 0">
+                <div v-for="r in assignedRoutines" :key="r.id" class="card-row">
+                  <div class="routine-card__info">
+                    <p class="routine-card__name">{{ r.routine_name || r.name }}</p>
+                    <p class="routine-card__desc">{{ r.description || "Sin descripción" }}</p>
+                    <span class="routine-card__trainer">{{ r.trainer_name || "—" }}</span>
+                  </div>
+                  <div class="routine-card__actions">
+                    <button class="action-btn" @click="openExercises(r)">Ver ejercicios</button>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="empty-inline">Ninguna rutina asignada aún</div>
+            </div>
+
+            <!-- Mis rutinas personales -->
+            <div class="section">
+              <p class="section__title">Mis rutinas personales</p>
+              <div class="cards-list" v-if="personalRoutines.length > 0">
+                <div v-for="r in personalRoutines" :key="r.id" class="card-row">
+                  <div class="routine-card__info">
+                    <p class="routine-card__name">{{ r.name }}</p>
+                    <p class="routine-card__desc">{{ r.description || "Sin descripción" }}</p>
+                    <span class="routine-card__trainer">Creada por mí</span>
+                  </div>
+                  <div class="routine-card__actions">
+                    <button class="action-btn" @click="openExercises(r)">Ver</button>
+                    <button class="action-btn" @click="openAddExercise(r)">+ Ejercicio</button>
+                    <button class="action-btn action-btn--danger" @click="handleDeleteRoutine(r)">Eliminar</button>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="empty-inline">No tienes rutinas personales. Crea una con el botón de arriba.</div>
+            </div>
+
+          </template>
+        </template>
 
         <!-- Modal nueva rutina -->
         <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
@@ -53,6 +107,40 @@
               <div class="modal__footer">
                 <button type="button" class="btn secundary" @click="closeModal">Cancelar</button>
                 <button type="submit" class="btn primary">Crear</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Modal crear ejercicio propio -->
+        <div v-if="showCreateExerciseModal" class="modal-overlay" @click.self="closeCreateExerciseModal">
+          <div class="modal">
+            <div class="modal__header">
+              <h2 class="modal__title">Nuevo ejercicio</h2>
+              <button class="modal__close" @click="closeCreateExerciseModal">✕</button>
+            </div>
+            <form class="modal__form" @submit.prevent="handleCreateExercise">
+              <div class="field">
+                <label class="field__label">Nombre</label>
+                <input class="field__input" v-model="createExerciseForm.name" placeholder="Ej: Press de banca" required />
+              </div>
+              <div class="field">
+                <label class="field__label">Grupo muscular</label>
+                <select class="field__input" v-model="createExerciseForm.muscle_group">
+                  <option value="">Sin grupo</option>
+                  <option>Pecho</option><option>Espalda</option><option>Hombros</option>
+                  <option>Bíceps</option><option>Tríceps</option><option>Piernas</option>
+                  <option>Gemelos</option><option>Abdomen</option><option>Funcional</option><option>Cardio</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field__label">Descripción</label>
+                <textarea class="field__input field__textarea" v-model="createExerciseForm.description" rows="2" placeholder="Opcional"></textarea>
+              </div>
+              <p v-if="createExerciseError" class="form__error">{{ createExerciseError }}</p>
+              <div class="modal__footer">
+                <button type="button" class="btn secundary" @click="closeCreateExerciseModal">Cancelar</button>
+                <button type="submit" class="btn primary">Crear ejercicio</button>
               </div>
             </form>
           </div>
@@ -93,7 +181,7 @@
         <div v-if="showExercisesModal" class="modal-overlay" @click.self="showExercisesModal = false">
           <div class="modal modal--wide">
             <div class="modal__header">
-              <h2 class="modal__title">Ejercicios — {{ selectedRoutine?.name }}</h2>
+              <h2 class="modal__title">{{ selectedRoutine?.routine_name || selectedRoutine?.name }}</h2>
               <button class="modal__close" @click="showExercisesModal = false">✕</button>
             </div>
             <div v-if="exercisesLoading" class="empty">Cargando...</div>
@@ -104,14 +192,18 @@
                   <span class="exercises-list__group">{{ ex.muscle_group || "—" }}</span>
                 </div>
                 <span class="exercises-list__meta">{{ ex.sets }}×{{ ex.reps }}{{ ex.suggested_weight ? ` · ${ex.suggested_weight} kg` : "" }}</span>
-                <button v-if="auth.isAdmin || auth.isTrainer" class="action-btn action-btn--danger" @click="handleRemoveExercise(selectedRoutine.id, ex.id)">✕</button>
+                <button
+                  v-if="auth.isAdmin || auth.isTrainer || canEditRoutine(selectedRoutine)"
+                  class="action-btn action-btn--danger"
+                  @click="handleRemoveExercise(selectedRoutine.routine_id || selectedRoutine.id, ex.id)"
+                >✕</button>
               </li>
             </ul>
             <p v-else class="empty">Sin ejercicios en esta rutina.</p>
           </div>
         </div>
 
-        <!-- Modal agregar ejercicio -->
+        <!-- Modal agregar ejercicio a rutina -->
         <div v-if="showAddExerciseModal" class="modal-overlay" @click.self="showAddExerciseModal = false">
           <div class="modal">
             <div class="modal__header">
@@ -171,6 +263,7 @@ const showModal = ref(false);
 const showAssignModal = ref(false);
 const showExercisesModal = ref(false);
 const showAddExerciseModal = ref(false);
+const showCreateExerciseModal = ref(false);
 const selectedRoutine = ref(null);
 const routineExercises = ref([]);
 const exercisesLoading = ref(false);
@@ -178,9 +271,21 @@ const addExerciseRoutine = ref(null);
 const formError = ref("");
 const assignError = ref("");
 const addExerciseError = ref("");
+const createExerciseError = ref("");
 const form = ref({ name: "", description: "" });
 const assignForm = ref({ client_id: "", routine_id: "" });
 const addExerciseForm = ref({ exercise_id: "", sets: "", reps: "", suggested_weight: "" });
+const createExerciseForm = ref({ name: "", muscle_group: "", description: "" });
+
+// Rutinas asignadas por el trainer (tienen routine_id del client_routines)
+const assignedRoutines = computed(() =>
+  routines.value.filter(r => r.assigned_at)
+);
+
+// Rutinas personales creadas por el usuario
+const personalRoutines = computed(() =>
+  routines.value.filter(r => !r.assigned_at)
+);
 
 const exerciseGroups = computed(() => {
   const groups = {};
@@ -192,10 +297,17 @@ const exerciseGroups = computed(() => {
   return Object.entries(groups).map(([label, items]) => ({ label, items }));
 });
 
+// Una rutina es editable si el usuario la creó o es del gym
+function canEditRoutine(r) {
+  if (!r) return false;
+  if (auth.isAdmin || auth.isTrainer) return true;
+  return !r.assigned_at; // Solo las personales son editables por el cliente
+}
+
 async function fetchRoutines() {
   loading.value = true;
   try {
-    if (auth.hasGym && (auth.isAdmin || auth.isTrainer)) {
+    if (auth.isAdmin || auth.isTrainer) {
       const { data } = await api.get(`/routines/gym/${auth.user?.gym_id}`);
       routines.value = data;
     } else {
@@ -215,7 +327,7 @@ async function fetchClients() {
 
 async function fetchExercises() {
   try {
-    const { data } = await api.get("/routines/exercises");
+    const { data } = await api.get("/exercises");
     exercises.value = data;
   } catch (err) { console.error(err); }
 }
@@ -226,12 +338,27 @@ async function handleSubmit() {
     await api.post("/routines", {
       name: form.value.name,
       description: form.value.description || null,
-      trainer_id: auth.hasGym ? form.value.trainer_id || auth.user?.id : auth.user?.id,
+      trainer_id: auth.user?.id,
     });
     closeModal();
     fetchRoutines();
   } catch (err) {
     formError.value = err.response?.data?.message || "Error al guardar";
+  }
+}
+
+async function handleCreateExercise() {
+  createExerciseError.value = "";
+  try {
+    await api.post("/exercises", {
+      name: createExerciseForm.value.name,
+      muscle_group: createExerciseForm.value.muscle_group || null,
+      description: createExerciseForm.value.description || null,
+    });
+    closeCreateExerciseModal();
+    fetchExercises();
+  } catch (err) {
+    createExerciseError.value = err.response?.data?.message || "Error al crear";
   }
 }
 
@@ -253,8 +380,10 @@ async function openExercises(r) {
   routineExercises.value = [];
   showExercisesModal.value = true;
   exercisesLoading.value = true;
+  // Las rutinas asignadas tienen routine_id, las propias tienen id
+  const id = r.routine_id || r.id;
   try {
-    const { data } = await api.get(`/routines/${r.id}/exercises`);
+    const { data } = await api.get(`/routines/${id}/exercises`);
     routineExercises.value = data;
   } catch (err) { console.error(err); }
   finally { exercisesLoading.value = false; }
@@ -269,20 +398,29 @@ function openAddExercise(r) {
 
 async function handleAddExercise() {
   addExerciseError.value = "";
+  const routineId = addExerciseRoutine.value.routine_id || addExerciseRoutine.value.id;
   try {
-    await api.post(`/routines/${addExerciseRoutine.value.id}/exercises`, {
+    await api.post(`/routines/${routineId}/exercises`, {
       exercise_id: addExerciseForm.value.exercise_id,
       sets: Number(addExerciseForm.value.sets) || null,
       reps: Number(addExerciseForm.value.reps) || null,
       suggested_weight: Number(addExerciseForm.value.suggested_weight) || null,
     });
     showAddExerciseModal.value = false;
-    if (showExercisesModal.value && selectedRoutine.value?.id === addExerciseRoutine.value.id) {
+    if (showExercisesModal.value && (selectedRoutine.value?.routine_id || selectedRoutine.value?.id) === routineId) {
       openExercises(addExerciseRoutine.value);
     }
   } catch (err) {
     addExerciseError.value = err.response?.data?.message || "Error al agregar";
   }
+}
+
+async function handleDeleteRoutine(r) {
+  if (!confirm(`¿Eliminar la rutina "${r.name}"?`)) return;
+  try {
+    await api.delete(`/routines/${r.id}`);
+    fetchRoutines();
+  } catch (err) { console.error(err); }
 }
 
 async function handleRemoveExercise(routineId, exerciseRowId) {
@@ -310,15 +448,33 @@ function closeAssignModal() {
   assignError.value = "";
 }
 
+function closeCreateExerciseModal() {
+  showCreateExerciseModal.value = false;
+  createExerciseForm.value = { name: "", muscle_group: "", description: "" };
+  createExerciseError.value = "";
+}
+
 onMounted(() => {
   fetchRoutines();
   fetchExercises();
-  if (auth.hasGym && (auth.isAdmin || auth.isTrainer)) fetchClients();
+  if (auth.isAdmin || auth.isTrainer) fetchClients();
 });
 </script>
 
 <style scoped>
-/* Solo estilos únicos de esta vista */
+.section { display: flex; flex-direction: column; gap: 10px; }
+
+.empty-inline {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-muted);
+  padding: 20px 16px;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
 .exercises-list {
   list-style: none;
   padding: 0;

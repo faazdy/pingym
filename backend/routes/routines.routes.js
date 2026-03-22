@@ -7,7 +7,9 @@ import {
   assignRoutineToClient,
   getClientRoutines,
   addExerciseToRoutine,
-  removeExerciseFromRoutine
+  removeExerciseFromRoutine,
+  deleteRoutine,
+  unassignRoutineFromClient
 } from "../controllers/routines.controller.js";
 import { verifyToken, isAdminOrTrainer, requireGym, requireGymOrOwnClient } from "../middleware/auth.middleware.js";
 import { getExercises } from "../controllers/routines.controller.js";
@@ -23,5 +25,7 @@ router.get("/client/:client_id", verifyToken, requireGym, requireGymOrOwnClient(
 router.get("/exercises", verifyToken, getExercises);
 router.post("/:routine_id/exercises", verifyToken, addExerciseToRoutine);
 router.delete("/:routine_id/exercises/:exercise_id", verifyToken, removeExerciseFromRoutine);
+router.delete("/:routine_id", verifyToken, deleteRoutine);
+router.delete("/unassign", verifyToken, isAdminOrTrainer, unassignRoutineFromClient);
 
 export default router;

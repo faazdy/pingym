@@ -138,8 +138,8 @@ export const getMyRoutines = async (req, res) => {
       FROM routines r
       LEFT JOIN users u ON r.trainer_id = u.id
       LEFT JOIN client_routines cr ON cr.routine_id = r.id AND cr.client_id = ${profileId}
-      WHERE (r.gym_id IS NULL AND r.trainer_id = ${req.user.id})
-         OR cr.client_id = ${profileId}
+      WHERE r.trainer_id = ${req.user.id}        -- ← rutinas creadas por el usuario (con o sin gym)
+        OR cr.client_id = ${profileId}           -- ← rutinas asignadas por el trainer
       ORDER BY r.created_at DESC
     `;
     const seen = new Set();
@@ -169,7 +169,10 @@ export const addExerciseToRoutine = async (req, res) => {
     if (routine.length === 0) {
       return res.status(404).json({ message: "Rutina no encontrada" });
     }
-    if (routine[0].gym_id && routine[0].gym_id !== req.user.gym_id) {
+    const isGymMatch = routine[0].gym_id && routine[0].gym_id === req.user.gym_id;
+    const isOwner = !routine[0].gym_id && routine[0].trainer_id === req.user.id;
+
+    if (!isGymMatch && !isOwner) {
       return res.status(403).json({ message: "Acceso denegado" });
     }
 
@@ -205,13 +208,84 @@ export const removeExerciseFromRoutine = async (req, res) => {
   }
 };
 
-// Listar todos los ejercicios disponibles
+// Listar ejercicios disponibles para el usuario autenticado (con ownership)
+// — Misma lógica que exercises.controller.js getExercises —
 export const getExercises = async (req, res) => {
   try {
-    const result = await sql`
-      SELECT * FROM exercises ORDER BY muscle_group, name
-    `;
+    const { id: userId, gym_id } = req.user;
+
+    let result;
+    if (gym_id) {
+      result = await sql`
+        SELECT e.*, u.name AS created_by_name
+        FROM exercises e
+        LEFT JOIN users u ON e.created_by = u.id
+        WHERE e.gym_id = ${gym_id}
+           OR e.created_by = ${userId}
+        ORDER BY e.muscle_group, e.name
+      `;
+    } else {
+      result = await sql`
+        SELECT e.*, u.name AS created_by_name
+        FROM exercises e
+        LEFT JOIN users u ON e.created_by = u.id
+        WHERE e.created_by = ${userId}
+        ORDER BY e.muscle_group, e.name
+      `;
+    }
+
     res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Eliminar rutina (admin/trainer del gym o usuario independiente dueño)
+export const deleteRoutine = async (req, res) => {
+  try {
+    const { routine_id } = req.params;
+    const routine = await sql`SELECT * FROM routines WHERE id = ${routine_id}`;
+
+    if (routine.length === 0) {
+      return res.status(404).json({ message: "Rutina no encontrada" });
+    }
+
+    const r = routine[0];
+    const canDelete =
+      (r.gym_id && r.gym_id === req.user.gym_id && ["admin", "trainer"].includes(req.user.role)) ||
+      (!r.gym_id && r.trainer_id === req.user.id);
+
+    if (!canDelete) {
+      return res.status(403).json({ message: "Acceso denegado" });
+    }
+
+    await sql`DELETE FROM routines WHERE id = ${routine_id}`;
+    res.json({ message: "Rutina eliminada" });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Desasignar rutina de un cliente
+export const unassignRoutineFromClient = async (req, res) => {
+  try {
+    const { client_id, routine_id } = req.body;
+    if (!client_id || !routine_id) {
+      return res.status(400).json({ message: "client_id y routine_id son requeridos" });
+    }
+
+    const result = await sql`
+      DELETE FROM client_routines
+      WHERE client_id = ${client_id} AND routine_id = ${routine_id}
+      RETURNING id
+    `;
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Asignación no encontrada" });
+    }
+
+    res.json({ message: "Rutina desasignada correctamente" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

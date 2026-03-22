@@ -19,3 +19,7 @@ coverage
 
 # files innecesarios
 planlist.txt
+
+#sql
+supabase.sql
+migration_exercises_ownership.sql
