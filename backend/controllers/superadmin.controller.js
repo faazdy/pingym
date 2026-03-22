@@ -78,3 +78,30 @@ export const getAllGyms = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+// Estadísticas globales del SaaS
+export const getStats = async (req, res) => {
+  try {
+    const [gyms, users, clients, routines] = await Promise.all([
+      sql`SELECT COUNT(*) FROM gyms`,
+      sql`SELECT COUNT(*) FROM users WHERE role != 'superadmin'`,
+      sql`SELECT COUNT(*) FROM clients_profile`,
+      sql`SELECT COUNT(*) FROM routines`,
+    ]);
+    res.json({
+      gyms: Number(gyms[0].count),
+      users: Number(users[0].count),
+      clients: Number(clients[0].count),
+      routines: Number(routines[0].count),
+    });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+};
+
+// Eliminar gym
+export const deleteGym = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await sql`DELETE FROM gyms WHERE id = ${id} RETURNING id`;
+    if (result.length === 0) return res.status(404).json({ message: "Gym no encontrado" });
+    res.json({ message: "Gym eliminado" });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+};

@@ -1,6 +1,6 @@
 # PinGym — Documentación completa
 
-**v1.0.0 · Backend + Frontend**
+**v1.1.0 · Backend + Frontend**
 
 API REST para gestión de gimnasios: autenticación, clientes, membresías, rutinas, asistencia, casilleros, progreso, posts y más. Frontend en Vue 3 + Vite.
 
@@ -14,7 +14,19 @@ API REST para gestión de gimnasios: autenticación, clientes, membresías, ruti
 - [Estructura del proyecto](#estructura-del-proyecto)
 - [Iniciar el proyecto desde la raíz](#iniciar-el-proyecto-desde-la-raíz)
 - [API Reference](#api-reference)
-- [Autenticación JWT](#autenticación-con-jwt)
+  - [Autenticación — /api/auth](#auth----apiauth)
+  - [Superadmin — /api/superadmin](#superadmin----apisuperadmin)
+  - [Clients — /api/clients](#clients----apiclients)
+  - [Memberships — /api/memberships](#memberships----apimemberships)
+  - [Routines — /api/routines](#routines----apiroutines)
+  - [Attendance — /api/attendance](#attendance----apiattendance)
+  - [Lockers — /api/lockers](#lockers----apilockers)
+  - [Progress — /api/progress](#progress----apiprogress)
+  - [Posts — /api/posts](#posts----apiposts)
+  - [Exercises — /api/exercises](#exercises----apiexercises)
+  - [QR — /api/qr](#qr----apiqr)
+  - [Trainers — /api/trainers](#trainers----apitrainers)
+- [Autenticación con JWT](#autenticación-con-jwt)
 - [Frontend (Vue 3 + Vite)](#frontend-vue-3--vite)
 - [Ejemplos de uso de la API](#ejemplos-de-uso-de-la-api)
 - [Códigos de error](#códigos-de-error)
@@ -46,7 +58,9 @@ gymsaas/
 │   ├── .env               # Variables de entorno (no subir a Git)
 │   ├── config/db.js       # Conexión PostgreSQL
 │   ├── src/server.js      # Arranque del servidor
-│   ├── routes/            # auth, clients, memberships, routines, attendance, lockers, progress, posts, exercises, qr, trainers
+│   ├── routes/            # auth, clients, memberships, routines, attendance,
+│   │                      #   lockers, progress, posts, exercises, qr,
+│   │                      #   trainers, superadmin
 │   ├── controllers/
 │   └── middleware/auth.middleware.js
 ├── frontend/
@@ -56,7 +70,7 @@ gymsaas/
 │   │   ├── services/api.js  # Axios con baseURL e interceptores
 │   │   ├── stores/auth.store.js
 │   │   ├── router/routes.js
-│   │   └── pages/           # Login, Register, dashboard/*
+│   │   └── pages/           # Login, Register, SuperAdminView, dashboard/*
 │   ├── .env
 │   └── vite.config.js
 ├── sql/
@@ -162,32 +176,43 @@ Backend quedará en `http://localhost:3000`, frontend en `http://localhost:5173`
 
 Base URL: `http://localhost:3000/api`
 
+---
+
 ### Auth — `/api/auth`
 
 Registro, login y CRUD de usuarios y gyms.
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
-| POST | `/api/auth/register` | Público | Registro: (1) sin gym, (2) con `gym` = UUID, (3) con `gym` = `{ name, address?, phone? }` → crea gym + admin |
+| POST | `/api/auth/register` | Público | Registro de cliente. (1) Sin `gym`: usuario independiente sin gym. (2) Con `gym` = UUID string: cliente vinculado a gym existente (registro por QR) |
 | POST | `/api/auth/login` | Público | Login. Body: `{ email, password }`. Devuelve `{ token, user }`. JWT 7 días |
+| GET | `/api/auth/gym-info/:gym_id` | Público | Datos básicos del gym para la pantalla de registro por QR (`id`, `name`) |
 | POST | `/api/auth/register-user` | 🔒 Admin | Registrar trainer o client. Body: `name`, `email`, `password`, `role` (trainer \| client), opc. `phone`, `address`, `eps`, `emergency_contact` |
 | PUT | `/api/auth/gym/:id_gym` | 🔒 Admin | Actualizar gym. Body: `name_gym`, `address`, `phone` |
 | DELETE | `/api/auth/gym/:id_gym` | 🔒 Admin | Eliminar gym (cascada) |
 | PUT | `/api/auth/user/:id_user` | 🔒 Admin | Actualizar usuario. Body: `name`, `email` |
 | DELETE | `/api/auth/user/:id_user` | 🔒 Admin | Eliminar usuario (cascada) |
 
-**Register — Body (crear gym + admin):**
+> ⚠️ La creación de un nuevo gym con su admin ya **no** se realiza desde `/api/auth/register`. Esta operación es exclusiva del módulo [Superadmin](#superadmin----apisuperadmin).
+
+**Register — Body (usuario independiente, sin gym):**
 
 ```json
 {
-  "name": "Admin Gym",
-  "email": "admin@gym.com",
+  "name": "Juan Pérez",
+  "email": "juan@example.com",
+  "password": "secret123"
+}
+```
+
+**Register — Body (cliente vinculado a gym por QR):**
+
+```json
+{
+  "name": "Juan Pérez",
+  "email": "juan@example.com",
   "password": "secret123",
-  "gym": {
-    "name": "Iron Gym",
-    "address": "Calle 72 #10-30",
-    "phone": "601 456 7890"
-  }
+  "gym": "550e8400-e29b-41d4-a716-446655440000"
 }
 ```
 
@@ -197,10 +222,67 @@ Registro, login y CRUD de usuarios y gyms.
 {
   "token": "eyJhbGciOiJIUzI1NiIs...",
   "user": {
-    "id", "name", "email", "role",
-    "gym_id", "gym_name", "client_profile_id"
+    "id": "...",
+    "name": "...",
+    "email": "...",
+    "role": "client",
+    "gym_id": null,
+    "gym_name": null,
+    "client_profile_id": "..."
   }
 }
+```
+
+---
+
+### Superadmin — `/api/superadmin`
+
+Exclusivo para el rol `superadmin`. Permite gestionar todos los gyms de la plataforma.
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| POST | `/api/superadmin/create-gym` | 🔒 Superadmin | Crear un nuevo gym junto con su admin. Body: `gym` (`name`, `address?`, `phone?`) y `admin` (`name`, `email`, `password`) |
+| GET | `/api/superadmin/gyms` | 🔒 Superadmin | Listar todos los gyms con su admin principal |
+
+**create-gym — Body:**
+
+```json
+{
+  "gym": {
+    "name": "Iron Gym",
+    "address": "Calle 72 #10-30",
+    "phone": "601 456 7890"
+  },
+  "admin": {
+    "name": "Admin Iron",
+    "email": "admin@irongym.com",
+    "password": "secret123"
+  }
+}
+```
+
+**create-gym — Respuesta 201:**
+
+```json
+{
+  "gym": { "id": "...", "name": "Iron Gym", "address": "...", "phone": "...", "created_at": "..." },
+  "admin": { "id": "...", "name": "Admin Iron", "email": "...", "role": "admin", "gym_id": "..." }
+}
+```
+
+**gyms — Respuesta 200:**
+
+```json
+[
+  {
+    "id": "...",
+    "name": "Iron Gym",
+    "address": "...",
+    "phone": "...",
+    "created_at": "...",
+    "admin": { "id": "...", "name": "Admin Iron", "email": "admin@irongym.com" }
+  }
+]
 ```
 
 ---
@@ -233,17 +315,26 @@ Todos requieren JWT. Admin o trainer: mismo gym. Cliente: solo su propio perfil 
 
 ### Routines — `/api/routines`
 
+Los usuarios de gym y los usuarios independientes pueden gestionar rutinas. Un usuario sin gym gestiona solo sus propias rutinas (`gym_id = null`).
+
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
 | GET | `/api/routines/gym/:gym_id` | Admin/Trainer + gym | Rutinas del gym |
-| GET | `/api/routines/my` | JWT | Mis rutinas (asignadas o creadas por mí) |
-| GET | `/api/routines/exercises` | JWT | Catálogo global de ejercicios |
+| GET | `/api/routines/my` | JWT | Mis rutinas (asignadas a mí o creadas por mí) |
+| GET | `/api/routines/exercises` | JWT | Ejercicios disponibles para el usuario (del gym + propios) |
 | POST | `/api/routines` | JWT | Crear rutina. Body: `name`, `description?`, `trainer_id?`, `exercises?` (array `{ exercise_id, sets?, reps?, suggested_weight? }`) |
-| GET | `/api/routines/:routine_id/exercises` | JWT | Ejercicios de una rutina |
-| POST | `/api/routines/assign` | Admin/Trainer | Asignar a cliente. Body: `client_id`, `routine_id` |
-| GET | `/api/routines/client/:client_id` | JWT | Rutinas asignadas a un cliente |
-| POST | `/api/routines/:routine_id/exercises` | JWT | Añadir ejercicio. Body: `exercise_id`, `sets?`, `reps?`, `suggested_weight?` |
-| DELETE | `/api/routines/:routine_id/exercises/:exercise_id` | JWT | Quitar ejercicio (ID en routine_exercises) |
+| GET | `/api/routines/:routine_id/exercises` | JWT | Ejercicios de una rutina (con acceso válido) |
+| POST | `/api/routines/assign` | Admin/Trainer + gym | Asignar rutina a cliente. Body: `client_id`, `routine_id` |
+| DELETE | `/api/routines/unassign` | Admin/Trainer | Desasignar rutina de cliente. Body: `client_id`, `routine_id` |
+| GET | `/api/routines/client/:client_id` | JWT + gym | Rutinas asignadas a un cliente |
+| POST | `/api/routines/:routine_id/exercises` | JWT | Añadir ejercicio a rutina. Body: `exercise_id`, `sets?`, `reps?`, `suggested_weight?` |
+| DELETE | `/api/routines/:routine_id/exercises/:exercise_id` | JWT | Quitar ejercicio de rutina (`:exercise_id` = ID en `routine_exercises`) |
+| DELETE | `/api/routines/:routine_id` | JWT | Eliminar rutina (admin/trainer del gym o usuario independiente dueño) |
+
+**Permisos de acceso a rutinas:**
+
+- Rutinas de gym: solo usuarios del mismo gym.
+- Rutinas independientes (`gym_id = null`): solo el usuario que las creó (`trainer_id === user.id`) o clientes que las tienen asignadas.
 
 ---
 
@@ -274,8 +365,8 @@ Todos requieren JWT. Admin o trainer: mismo gym. Cliente: solo su propio perfil 
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
-| POST | `/api/progress` | JWT | Registrar progreso. Body: `client_id`, `exercise_id`, `weight?`, `reps?`. Cliente solo su propio client_id |
-| GET | `/api/progress/client/:client_id?exercise_id=uuid` | JWT | Progreso de un cliente (query opcional exercise_id) |
+| POST | `/api/progress` | JWT | Registrar progreso. Body: `client_id`, `exercise_id`, `weight?`, `reps?`. Cliente solo su propio `client_id` |
+| GET | `/api/progress/client/:client_id?exercise_id=uuid` | JWT | Progreso de un cliente (query opcional `exercise_id`) |
 
 ---
 
@@ -293,10 +384,25 @@ Todos requieren JWT. Admin o trainer: mismo gym. Cliente: solo su propio perfil 
 
 ### Exercises — `/api/exercises`
 
+Los ejercicios ahora son propios de cada usuario o gym. Un usuario sin gym puede crear sus propios ejercicios.
+
+**Visibilidad:**
+- Usuario **con gym**: ve los ejercicios del gym + los creados por él + ejercicios globales (sin `created_by` ni `gym_id`).
+- Usuario **sin gym (independiente)**: ve solo los creados por él + ejercicios globales.
+
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
-| GET | `/api/exercises` | JWT | Lista de ejercicios (catálogo global) |
-| POST | `/api/exercises` | Admin + gym | Crear. Body: `name`, `muscle_group?`, `description?` |
+| GET | `/api/exercises` | JWT | Lista de ejercicios visibles para el usuario autenticado. Incluye `created_by_name` |
+| POST | `/api/exercises` | JWT | Crear ejercicio. Body: `name`, `muscle_group?`, `description?`. Se asigna `created_by = userId` y `gym_id` del token |
+| PUT | `/api/exercises/:id` | JWT | Actualizar ejercicio. Solo el creador o admin/trainer del mismo gym |
+| DELETE | `/api/exercises/:id` | JWT | Eliminar ejercicio. Solo el creador o admin del mismo gym |
+
+**Permisos de edición/eliminación:**
+
+| Acción | ¿Quién puede? |
+|--------|---------------|
+| Editar | Creador del ejercicio, o admin/trainer del mismo gym |
+| Eliminar | Creador del ejercicio, o admin del mismo gym |
 
 ---
 
@@ -358,7 +464,7 @@ const { data } = await api.post('/auth/register', body)
 
 | Ruta | Vista | Requisitos |
 |------|-------|------------|
-| `/login`, `/register` | Login, Register | Invitado (si ya hay sesión → dashboard) |
+| `/login`, `/register` | Login, Register | Invitado (si ya hay sesión → dashboard o superadmin) |
 | `/dashboard` | Dashboard | Auth |
 | `/clients` | ClientPage | Auth, gym, admin o trainer |
 | `/trainers` | TrainersView | Auth, gym, admin o trainer |
@@ -369,8 +475,17 @@ const { data } = await api.post('/auth/register', body)
 | `/progress` | ProgressView | Auth |
 | `/posts` | PostsView | Auth, gym |
 | `/qr` | QrView | Auth, gym, admin |
+| `/superadmin` | SuperAdminView | Auth, superadmin |
 
-El store `auth.store.js` guarda usuario y token; el router comprueba `requiresAuth`, `requiresGym` y `roles` antes de entrar a cada ruta.
+**Lógica del router (`routes.js`):**
+
+- Si no hay sesión y la ruta requiere auth → redirige a `/login`.
+- Si hay sesión y la ruta es guest → redirige a `/dashboard` (o `/superadmin` si el role es `superadmin`).
+- Si la ruta es `superadminOnly` y el rol no es `superadmin` → redirige a `/dashboard`.
+- Si la ruta requiere gym y el usuario no tiene gym → redirige a `/dashboard`.
+- Si la ruta requiere roles específicos y el usuario no cumple → redirige a `/dashboard`.
+
+El store `auth.store.js` guarda usuario y token; el router comprueba `requiresAuth`, `requiresGym`, `superadminOnly` y `roles` antes de entrar a cada ruta.
 
 ---
 
@@ -388,23 +503,54 @@ const data = await res.json()
 localStorage.setItem('token', data.token)
 ```
 
-### 2. Registrar gym + admin (público)
+### 2. Registrar gym + admin (superadmin)
+
+```javascript
+const res = await fetch('http://localhost:3000/api/superadmin/create-gym', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${superadminToken}`
+  },
+  body: JSON.stringify({
+    gym: { name: 'Iron Gym', address: 'Calle 1', phone: '600 111 2222' },
+    admin: { name: 'Admin Iron', email: 'admin@irongym.com', password: 'pass123' }
+  })
+})
+const { gym, admin } = await res.json()
+```
+
+### 3. Registro público de cliente (independiente)
 
 ```javascript
 const res = await fetch('http://localhost:3000/api/auth/register', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    name: 'Admin',
-    email: 'admin@gym.com',
-    password: 'pass123',
-    gym: { name: 'Iron Gym', address: 'Calle 1', phone: '600 111 2222' }
+    name: 'Juan Pérez',
+    email: 'juan@example.com',
+    password: 'secret123'
   })
 })
-const { user, gym } = await res.json()
+const user = await res.json()
 ```
 
-### 3. Obtener clientes del gym (con token)
+### 4. Registro público de cliente vinculado a gym (por QR)
+
+```javascript
+const res = await fetch('http://localhost:3000/api/auth/register', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'Juan Pérez',
+    email: 'juan@example.com',
+    password: 'secret123',
+    gym: gymId   // UUID del gym
+  })
+})
+```
+
+### 5. Obtener clientes del gym (con token)
 
 ```javascript
 const token = localStorage.getItem('token')
@@ -414,33 +560,40 @@ const res = await fetch(`http://localhost:3000/api/clients/${gymId}`, {
 const clientes = await res.json()
 ```
 
-### 4. Asignar membresía a cliente
+### 6. Crear ejercicio (cualquier usuario autenticado)
 
 ```javascript
-await fetch('http://localhost:3000/api/memberships/assign', {
+await fetch('http://localhost:3000/api/exercises', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
   },
-  body: JSON.stringify({ client_id: clientId, membership_id: membershipId })
+  body: JSON.stringify({ name: 'Press banca', muscle_group: 'Pecho', description: '...' })
 })
 ```
 
-### 5. Check-in de asistencia
+### 7. Actualizar / eliminar ejercicio
 
 ```javascript
-await fetch('http://localhost:3000/api/attendance/check-in', {
-  method: 'POST',
+// Actualizar
+await fetch(`http://localhost:3000/api/exercises/${exerciseId}`, {
+  method: 'PUT',
   headers: {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
   },
-  body: JSON.stringify({ client_id: clientId })
+  body: JSON.stringify({ name: 'Press banca inclinado' })
+})
+
+// Eliminar
+await fetch(`http://localhost:3000/api/exercises/${exerciseId}`, {
+  method: 'DELETE',
+  headers: { 'Authorization': `Bearer ${token}` }
 })
 ```
 
-### 6. Crear rutina con ejercicios
+### 8. Crear rutina con ejercicios
 
 ```javascript
 const res = await fetch('http://localhost:3000/api/routines', {
@@ -461,7 +614,29 @@ const res = await fetch('http://localhost:3000/api/routines', {
 const rutina = await res.json()
 ```
 
-### 7. Registrar progreso
+### 9. Eliminar rutina
+
+```javascript
+await fetch(`http://localhost:3000/api/routines/${routineId}`, {
+  method: 'DELETE',
+  headers: { 'Authorization': `Bearer ${token}` }
+})
+```
+
+### 10. Desasignar rutina de un cliente
+
+```javascript
+await fetch('http://localhost:3000/api/routines/unassign', {
+  method: 'DELETE',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({ client_id: clientId, routine_id: routineId })
+})
+```
+
+### 11. Registrar progreso
 
 ```javascript
 await fetch('http://localhost:3000/api/progress', {
@@ -479,7 +654,7 @@ await fetch('http://localhost:3000/api/progress', {
 })
 ```
 
-### 8. Obtener datos para QR de registro (público)
+### 12. Obtener datos para QR de registro (público)
 
 ```javascript
 const res = await fetch(`http://localhost:3000/api/qr/register/${gymId}`)
@@ -497,7 +672,7 @@ const { gym_id, gym_name, register_url } = await res.json()
 | 401 | Unauthorized | Sin token o token inválido/expirado |
 | 403 | Forbidden | Rol insuficiente o recurso de otro gym |
 | 404 | Not Found | Recurso no existe |
-| 409 | Conflict | Email/gym duplicado, casillero ocupado, etc. |
+| 409 | Conflict | Email/gym duplicado, casillero ocupado, rutina ya asignada, etc. |
 | 500 | Server Error | Error interno (mensaje en `error` o `message`) |
 
 Las respuestas de error suelen ser JSON con `message` o `error`.
